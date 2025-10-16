@@ -11,7 +11,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <Header />
         <div className="flex flex-1">
           <Sidebar />
-          <div className="flex-1 overflow-y-auto bg-background">
+          <div className="flex-1 overflow-hidden">
             <Component {...pageProps} />
           </div>
         </div>

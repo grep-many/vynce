@@ -5,9 +5,8 @@ import React, { Suspense } from 'react';
 
 const Home = () => {
   return (
-    <main className="fle-1 p-4">
+    <main className="p-4">
       <CategoryTab />
-     
       <Suspense fallback={<Loading />}>
         <VideoGrid/>
       </Suspense>
