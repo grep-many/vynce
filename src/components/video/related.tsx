@@ -5,7 +5,7 @@ const RelatedVideos = ({videos}:any) => {
   return (
     <div className="space-y-2">
       {videos.map((video: any) => (
-        <VideoCard video={video} type={"related"}/>
+        <VideoCard key={video._id} video={video} type={"related"}/>
       ))}
     </div>
   );

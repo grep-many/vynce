@@ -1,6 +1,6 @@
 import React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { extractInitials, uploadTimeCal } from '../../../libs';
+import { extractInitials, uploadTimeCal } from '@/lib';
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
 
@@ -55,7 +55,7 @@ const VideoComments = ({ videoId }: any) => {
 
   React.useEffect(() => {
     loadComments();
-  });
+  }, []);
 
   const handleSubmitComment = async () => {
     if (!user || !newComment.trim()) return;
@@ -137,7 +137,7 @@ const VideoComments = ({ videoId }: any) => {
             <div key={comment._id} className="flex gap-4">
               <Avatar className="w-10 h-10">
                 <AvatarImage src="/placeholder.svg?height=40&width=40" />
-                <AvatarFallback>{comment.usercommented[0]}</AvatarFallback>
+                <AvatarFallback>{extractInitials(comment.usercommented)}</AvatarFallback>
               </Avatar>
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">

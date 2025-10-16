@@ -25,10 +25,11 @@ import {
 } from './ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { ModeToggle } from './mode-toggle';
-import { extractInitials } from '../../libs';
+import { extractInitials } from '@/lib';
 
 const Header = () => {
   //TODO: remove the below the static testing user object
+
   const user: any = {
     id: '1',
     name: 'John Doe',
@@ -123,10 +124,10 @@ const Header = () => {
                         {user.email}
                       </span>
                     </div>
-                    <ModeToggle/>
+                    <ModeToggle />
                   </div>
                 </DropdownMenuLabel>
-                <DropdownMenuSeparator/>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link href={`/channel/${user.id}`}>
                     <TvMinimalPlay className="w-4 h-4" />
@@ -140,13 +141,13 @@ const Header = () => {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href={`/liked-videos`}>
+                  <Link href={`/liked`}>
                     <ThumbsUp className="w-4 h-4" />
                     Liked video
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href={`/watch-later`}>
+                  <Link href={`/watch/later`}>
                     <Clock className="w-4 h-4" />
                     Watch later
                   </Link>
