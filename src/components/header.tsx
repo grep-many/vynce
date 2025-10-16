@@ -25,6 +25,7 @@ import {
 } from './ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { ModeToggle } from './mode-toggle';
+import { extractInitials } from '../../libs';
 
 const Header = () => {
   //TODO: remove the below the static testing user object
@@ -38,7 +39,7 @@ const Header = () => {
   const [query, setQuery] = React.useState('');
 
   return (
-    <header className="flex items-center justify-between px-4 py-2 border-b">
+    <header className="flex items-center justify-between px-4 py-2 border-b bg-background/70 backdrop-blur-2xl z-10">
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon">
           <Menu className="w-6 h-6" />
@@ -97,13 +98,7 @@ const Header = () => {
                   <Avatar className="w-8 h-8">
                     <AvatarImage src={user.image} alt={user.name} />
                     <AvatarFallback>
-                      {user.name
-                        .trim()
-                        .split(' ')
-                        .filter(Boolean)
-                        .map((w: string) => w[0]?.toUpperCase())
-                        .slice(0, 2)
-                        .join('')}
+                      {extractInitials(user.name)}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
@@ -119,13 +114,7 @@ const Header = () => {
                     <Avatar className="w-8 h-8">
                       <AvatarImage src={user.image} alt={user.name} />
                       <AvatarFallback>
-                        {user.name
-                          .trim()
-                          .split(' ')
-                          .filter(Boolean)
-                          .map((w: string) => w[0]?.toUpperCase())
-                          .slice(0, 2)
-                          .join('')}
+                        {extractInitials(user.name)}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col text-left text-sm leading-tight">
