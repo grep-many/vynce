@@ -7,13 +7,19 @@ import Sidebar from '@/components/sidebar';
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      <div className="flex flex-col min-h-screen">
-        <Header />
-        <div className="flex flex-1">
-          <Sidebar />
-          <div className="flex-1 overflow-hidden">
+      <div className="h-screen flex flex-col">
+        <header className="sticky top-0 z-50 bg-background border-b">
+          <Header />
+        </header>
+
+        <div className="flex flex-1 overflow-hidden">
+          <aside className="w-64 border-r overflow-y-auto bg-background">
+            <Sidebar />
+          </aside>
+
+          <main className="flex-1 overflow-y-auto">
             <Component {...pageProps} />
-          </div>
+          </main>
         </div>
       </div>
     </ThemeProvider>

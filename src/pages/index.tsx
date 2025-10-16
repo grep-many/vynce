@@ -1,15 +1,15 @@
 import CategoryTab from '@/components/category-tabs';
 import Loading from '@/components/loading';
 import VideoGrid from '@/components/video/grid';
-import React, { Suspense } from 'react';
+import React from 'react';
 
 const Home = () => {
   return (
     <main className="p-4">
       <CategoryTab />
-      <Suspense fallback={<Loading />}>
+      <React.Suspense fallback={<Loading />}>
         <VideoGrid/>
-      </Suspense>
+      </React.Suspense>
     </main>
   );
 };

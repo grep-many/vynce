@@ -5,7 +5,7 @@ import RelatedVideos from '@/components/video/related';
 import { useRouter } from 'next/router';
 import React from 'react';
 
-const Video = () => {
+const Watch = () => {
   const router = useRouter();
   const { id } = router.query;
 
@@ -66,4 +66,4 @@ const Video = () => {
   );
 };
 
-export default Video;
+export default Watch;

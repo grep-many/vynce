@@ -1,6 +1,6 @@
 import React from 'react';
 import { Avatar, AvatarFallback } from '../ui/avatar';
-import { extractInitials, formatViews, uploadTimeCal } from '../../../libs';
+import { extractInitials, formatViews, uploadTimeCal } from '@/lib';
 import { Button } from '../ui/button';
 import {
   Clock,
@@ -105,36 +105,24 @@ const VideoInfo = ({ video }: any) => {
               {dislike.toLocaleString()}
             </Button>
           </div>
-          
-          <Button
-            variant="ghost"
-            size="sm"
-            className=" rounded-full"
-          >
+
+          <Button variant="ghost" size="sm" className=" rounded-full">
             <Share className="w-5 h-5 mr-2" />
             Share
           </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className=" rounded-full"
-          >
+          <Button variant="ghost" size="sm" className=" rounded-full">
             <Download className="w-5 h-5 mr-2" />
             Download
           </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className=" rounded-full"
-          >
+          <Button variant="ghost" size="icon" className=" rounded-full">
             <MoreHorizontal className="w-5 h-5" />
           </Button>
         </div>
       </div>
       <div className=" rounded-lg p-4">
         <div className="flex gap-4 text-sm font-medium mb-2">
-          <span>{video.views.toLocaleString()} views</span>
-          <span>{uploadTimeCal(video.createdAt)} ago</span>
+          <span>{formatViews(video.views)} views</span>
+          <span>{uploadTimeCal(video.createdAt)}</span>
         </div>
         <div className={`text-sm ${showFullDescription ? '' : 'line-clamp-3'}`}>
           <p>

@@ -1,10 +1,28 @@
 import Link from 'next/link';
 import React from 'react';
 import { Avatar, AvatarFallback } from '../ui/avatar';
-import { extractInitials, formatViews, uploadTimeCal } from '../../../libs';
+import { extractInitials, formatViews, uploadTimeCal } from '@/lib';
 import VideoElement from './video-element';
+import { Button } from '../ui/button';
+import { MoreVertical, X } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
 
-const VideoCard = ({ video, type = 'default' }: any) => {
+type VideoCardProps = {
+  video: any;
+  type?: 'default' | 'related' | 'history';
+  onRemove?: (id: string) => void;
+};
+
+const VideoCard: React.FC<VideoCardProps> = ({
+  video,
+  type = 'default',
+  onRemove,
+}) => {
   const videoRef = React.useRef<HTMLVideoElement | null>(null);
   const [isPlaying, setIsPlaying] = React.useState(false);
 
@@ -24,6 +42,9 @@ const VideoCard = ({ video, type = 'default' }: any) => {
     }
   };
 
+  // =========================================================
+  // Related Videos
+  // =========================================================
   if (type === 'related') {
     return (
       <Link
@@ -54,6 +75,74 @@ const VideoCard = ({ video, type = 'default' }: any) => {
     );
   }
 
+  // =========================================================
+  // History Videos
+  // =========================================================
+  if (type === 'history') {
+    return (
+      <div
+        key={video._id}
+        className="flex gap-4 group hover:bg-secondary/30 rounded-lg p-1"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        {/* Thumbnail */}
+        <Link href={`/watch/${video._id}`} className="flex-shrink-0">
+          <div className="relative w-40 aspect-video rounded overflow-hidden">
+            <VideoElement
+              videoRef={videoRef}
+              video={video}
+              isPlaying={isPlaying}
+            />
+          </div>
+        </Link>
+
+        {/* Video Info */}
+        <div className="flex-1 min-w-0">
+          <Link href={`/watch/${video._id}`}>
+            <h3 className="font-medium text-sm line-clamp-2 group-hover:text-blue-600 mb-1">
+              {video.title}
+            </h3>
+          </Link>
+          <p className="text-sm text-gray-600">{video.channel}</p>
+          <p className="text-sm text-gray-600">
+            {formatViews(video.views || 0)} views •{' '}
+            {uploadTimeCal(video.createdAt)}
+          </p>
+          {video.watchedon && (
+            <p className="text-xs text-gray-500 mt-1">
+              Watched {uploadTimeCal(video.watchedon)}
+            </p>
+          )}
+        </div>
+
+        {/* Dropdown Menu */}
+        {onRemove && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <MoreVertical className="w-4 h-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => onRemove(video._id)}>
+                <X className="w-4 h-4 mr-2" />
+                Remove
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+      </div>
+    );
+  }
+
+  // =========================================================
+  // Default Video Card
+  // =========================================================
   return (
     <Link href={`/watch/${video._id}`}>
       <div
