@@ -6,12 +6,12 @@ import { toast } from 'sonner';
 
 export const AuthContext = React.createContext<AuthContextType>({
   user: null,
-  loading: true,
+  loading: false,
 });
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+export const AuthProvider: React.FC<ProviderProps> = ({ children }) => {
   const [user, setUser] = React.useState(null);
-  const [loading, setLoading] = React.useState(true);
+  const [loading, setLoading] = React.useState(false);
 
   const logIn = (data: any) => {
     setLoading(true);
@@ -79,6 +79,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     <AuthContext.Provider
       value={{
         user,
+        setUser,
         loading,
         logIn,
         logOut,

@@ -11,47 +11,46 @@ import { Label } from '../ui/label';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { Button } from '../ui/button';
+import useAuth from '@/hooks/useAuth';
+import useChannel from '@/hooks/useChannel';
 
 const ChannelDialogue = ({ isopen, onclose, channeldata, mode }: any) => {
-// TODO remove the static data
-  const user: any = {
-    id: '1',
-    name: 'John Doe',
-    email: 'john@example.com',
-    image: 'https://github.com/shadcn.png?height=32&width=32',
-  };
-  const router = useRouter()
+  const { user, setUser } = useAuth();
+  const { loading, createChannel } = useChannel();
+  const router = useRouter();
   const [formData, setFormData] = React.useState<any>({
-    name: "",
-    description: ""
-  })
-  const [isSubmitting, setIsSubmitting] = React.useState(false)
+    name: '',
+    description: '',
+  });
 
-  
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
-    setFormData((prev:any)=>({...prev,[name]:value}))
+    setFormData((prev: any) => ({ ...prev, [name]: value }));
   };
 
   const handlesubmit = async (e: FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
+    const updates = await createChannel(formData);
+    setUser(updates);
+    router.push(`/channel/${user._id}`)
+    onclose()
   };
 
   React.useEffect(() => {
-    if (channeldata && mode == "edit") {
+    if (channeldata && mode == 'edit') {
       setFormData({
-        name: channeldata.name || "",
-        description:channeldata.description||""
-      })
+        name: channeldata.name || '',
+        description: channeldata.description || '',
+      });
     } else {
       setFormData({
-        name: user.name || "",
-        description:""
-      })
+        name: user?.name || formData.name,
+        description: formData.description,
+      });
     }
-  },[channeldata])
+  }, [channeldata, user]);
   return (
     <Dialog open={isopen} onOpenChange={onclose}>
       <DialogContent className="sm:max-w-md md:max-w-lg">
@@ -89,8 +88,8 @@ const ChannelDialogue = ({ isopen, onclose, channeldata, mode }: any) => {
             <Button type="button" variant="outline" onClick={onclose}>
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting
+            <Button type="submit" disabled={loading}>
+              {loading
                 ? 'Saving...'
                 : mode === 'create'
                 ? 'Create Channel'

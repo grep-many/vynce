@@ -34,7 +34,6 @@ import Image from 'next/image';
 const Header = () => {
   //TODO: remove the below the static testing user object
   const [query, setQuery] = React.useState('');
-  const [hasChannel, setHasChannel] = React.useState(false)
   const [isDialogOpen, setIsDialogOpen] = React.useState(false)
   const router = useRouter();
   const { user, logOut, googleSignIn } = useAuth();
@@ -143,7 +142,7 @@ const Header = () => {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                {hasChannel ? (
+                {user?.channel ? (
                   <DropdownMenuItem asChild>
                     <Link href={`/channel/${user?._id}`}>
                       <TvMinimalPlay className="w-4 h-4" />

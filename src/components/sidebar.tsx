@@ -11,18 +11,11 @@ import Link from 'next/link';
 import React from 'react';
 import { Button } from './ui/button';
 import ChannelDialogue from './channel/dialog';
+import useAuth from '@/hooks/useAuth';
 
 const Sidebar = () => {
-  const [hasChannel, setHasChannel] = React.useState(true);
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
-
-  //TODO: remove the below the static testing user object
-  const user: any = {
-    id: '1',
-    name: 'John Doe',
-    email: 'john@example.com',
-    image: 'https://github.com/shadcn.png?height=32&width=32',
-  };
+  const { user } = useAuth();
 
   return (
     <aside className="w-64 border-r p-2">
@@ -67,7 +60,7 @@ const Sidebar = () => {
                   Watch later
                 </Button>
               </Link>
-              {hasChannel ? (
+              {user?.channel ? (
                 <Link href={`/channel/${user._id}`}>
                   <Button variant="ghost" className="w-full justify-start">
                     <TvMinimalPlay className="w-5 h-5 mr-3" />
