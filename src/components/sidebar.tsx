@@ -26,10 +26,10 @@ const Sidebar = () => {
             Home
           </Button>
         </Link>
-        <Link href="/explore">
+        <Link href="/history">
           <Button variant="ghost" className="w-full justify-start">
-            <Compass className="w-5 h-5 mr-3" />
-            Explore
+            <History className="w-5 h-5 mr-3" />
+            History
           </Button>
         </Link>
         <Link href="/subscriptions">
@@ -42,12 +42,6 @@ const Sidebar = () => {
         {user && (
           <>
             <div className="border-t pt-2 mt-2">
-              <Link href="/history">
-                <Button variant="ghost" className="w-full justify-start">
-                  <History className="w-5 h-5 mr-3" />
-                  History
-                </Button>
-              </Link>
               <Link href="/liked">
                 <Button variant="ghost" className="w-full justify-start">
                   <ThumbsUp className="w-5 h-5 mr-3" />
@@ -64,7 +58,7 @@ const Sidebar = () => {
                 <Link href={`/channel/${user._id}`}>
                   <Button variant="ghost" className="w-full justify-start">
                     <TvMinimalPlay className="w-5 h-5 mr-3" />
-                    Your Channel
+                    My Channel
                   </Button>
                 </Link>
               ) : (

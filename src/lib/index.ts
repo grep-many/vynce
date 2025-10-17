@@ -1,6 +1,6 @@
 import extractInitials from './extractInitials';
 import uploadTimeCal from './uploadTimeCal';
-import formatViews from './formatVIews';
+import formatViews from './formatViews';
 import { auth, provider } from './firebase';
 
 export {

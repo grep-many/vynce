@@ -1,5 +1,5 @@
 import { auth, provider } from '@/lib';
-import { loginUser } from '@/services/auth.service';
+import { loginUser, updateUser } from '@/services/auth.service';
 import { onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
 import React from 'react';
 import { toast } from 'sonner';
@@ -7,13 +7,17 @@ import { toast } from 'sonner';
 export const AuthContext = React.createContext<AuthContextType>({
   user: null,
   loading: false,
+  logIn: () => {},
+  createChannel: async () => {},
+  logOut: async () => {},
+  googleSignIn: async () => {},
 });
 
 export const AuthProvider: React.FC<ProviderProps> = ({ children }) => {
   const [user, setUser] = React.useState(null);
   const [loading, setLoading] = React.useState(false);
 
-  const logIn = (data: any) => {
+  const logIn = (data: LoginData) => {
     setLoading(true);
     setUser(data);
     localStorage.setItem('user', JSON.stringify(data));
@@ -32,6 +36,7 @@ export const AuthProvider: React.FC<ProviderProps> = ({ children }) => {
         image: user.photoURL || '/guest.jpg',
       });
       setUser(data.user);
+      toast.success(data.message)
     } catch (err) {
       console.error(err); //todo remove
       toast.error('Something went wrong while signin!');
@@ -43,6 +48,19 @@ export const AuthProvider: React.FC<ProviderProps> = ({ children }) => {
     setUser(null);
     localStorage.removeItem('user');
     await signOut(auth);
+  };
+
+  const createChannel = async (data: ChannelData) => {
+    setLoading(true);
+    try {
+      const { user, message } = await updateUser(data);
+      setUser(user);
+      return toast.success(message);
+    } catch (err) {
+      return toast.error(String(err));
+    } finally {
+      setLoading(false);
+    }
   };
 
   React.useEffect(() => {
@@ -79,7 +97,7 @@ export const AuthProvider: React.FC<ProviderProps> = ({ children }) => {
     <AuthContext.Provider
       value={{
         user,
-        setUser,
+        createChannel,
         loading,
         logIn,
         logOut,

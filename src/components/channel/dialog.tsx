@@ -1,8 +1,9 @@
 import { useRouter } from 'next/router';
-import React, { ChangeEvent, FormEvent, useEffect, useState } from 'react';
+import React, { ChangeEvent, FormEvent } from 'react';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -12,11 +13,9 @@ import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { Button } from '../ui/button';
 import useAuth from '@/hooks/useAuth';
-import useChannel from '@/hooks/useChannel';
 
 const ChannelDialogue = ({ isopen, onclose, channeldata, mode }: any) => {
-  const { user, setUser } = useAuth();
-  const { loading, createChannel } = useChannel();
+  const { loading, user, createChannel } = useAuth();
   const router = useRouter();
   const [formData, setFormData] = React.useState<any>({
     name: '',
@@ -24,7 +23,7 @@ const ChannelDialogue = ({ isopen, onclose, channeldata, mode }: any) => {
   });
 
   const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev: any) => ({ ...prev, [name]: value }));
@@ -32,10 +31,10 @@ const ChannelDialogue = ({ isopen, onclose, channeldata, mode }: any) => {
 
   const handlesubmit = async (e: FormEvent) => {
     e.preventDefault();
-    const updates = await createChannel(formData);
-    setUser(updates);
-    router.push(`/channel/${user._id}`)
-    onclose()
+    await createChannel(formData).then(() => {
+      router.push(`/channel/${user._id}`);
+      onclose();
+    });
   };
 
   React.useEffect(() => {
@@ -58,6 +57,11 @@ const ChannelDialogue = ({ isopen, onclose, channeldata, mode }: any) => {
           <DialogTitle>
             {mode === 'create' ? 'Create your channel' : 'Edit your channel'}
           </DialogTitle>
+          <DialogDescription>
+            {mode === 'create'
+              ? 'Fill out the form below to create your channel.'
+              : 'Update your channel information below.'}
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handlesubmit} className="space-y-6">

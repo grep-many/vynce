@@ -2,19 +2,14 @@ import ChannelHeader from '@/components/channel/header';
 import ChannelTabs from '@/components/channel/tabs';
 import ChannelVideos from '@/components/channel/videos';
 import VideoUploader from '@/components/video/uploader';
+import useAuth from '@/hooks/useAuth';
 import { useRouter } from 'next/router';
 import React from 'react';
 
 const Channel = () => {
   const router = useRouter();
   const { id } = router.query;
-  //TODO: remove the below the static testing user object
-  const user: any = {
-    id: '1',
-    name: 'John Doe',
-    email: 'john@example.com',
-    image: 'https://github.com/shadcn.png?height=32&width=32',
-  };
+  const {user} = useAuth()
   // TODO: remove below static videos object
   const videos = [
     {

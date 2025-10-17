@@ -6,6 +6,10 @@ const videoSchema = new mongoose.Schema<VideoDocument>(
       type: String,
       required: [true, 'title is required'],
     },
+    description: {
+      type: String,
+      required: [true, 'description is required'],
+    },
     filename: {
       type: String,
       required: [true, 'filename is required'],
