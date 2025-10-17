@@ -67,7 +67,7 @@ const Content: React.FC<ContentProps> = ({
         {videos.map((item) => (
           <VideoCard
             key={item._id}
-            type="history" // VideoCard uses 'history' type for hover video preview
+            type="content" // VideoCard uses 'history' type for hover video preview
             video={{
               ...item.video,
               watchedon: type === 'history' ? item.watchedon : undefined,

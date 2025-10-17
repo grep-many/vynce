@@ -14,7 +14,7 @@ import {
 
 type VideoCardProps = {
   video: any;
-  type?: 'default' | 'related' | 'history';
+  type?: 'default' | 'related' | 'content';
   onRemove?: (id: string) => void;
 };
 
@@ -76,19 +76,19 @@ const VideoCard: React.FC<VideoCardProps> = ({
   }
 
   // =========================================================
-  // History Videos
+  // History Videos (Updated layout to match SearchResult style + description)
   // =========================================================
-  if (type === 'history') {
+  if (type === 'content') {
     return (
       <div
         key={video._id}
-        className="flex gap-4 group hover:bg-secondary/30 rounded-lg p-1"
+        className="flex gap-4 group rounded-lg p-2 hover:bg-secondary/20 transition-all"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
         {/* Thumbnail */}
         <Link href={`/watch/${video._id}`} className="flex-shrink-0">
-          <div className="relative w-40 aspect-video rounded overflow-hidden">
+          <div className="relative w-80 aspect-video rounded-lg overflow-hidden bg-muted">
             <VideoElement
               videoRef={videoRef}
               video={video}
@@ -98,19 +98,40 @@ const VideoCard: React.FC<VideoCardProps> = ({
         </Link>
 
         {/* Video Info */}
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 py-1">
           <Link href={`/watch/${video._id}`}>
-            <h3 className="font-medium text-sm line-clamp-2 group-hover:text-blue-600 mb-1">
+            <h3 className="font-medium text-lg line-clamp-2 group-hover:text-blue-600 mb-2">
               {video.title}
             </h3>
           </Link>
-          <p className="text-sm text-gray-600">{video.channel}</p>
-          <p className="text-sm text-gray-600">
-            {formatViews(video.views || 0)} views •{' '}
-            {uploadTimeCal(video.createdAt)}
+
+          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+            <span>{formatViews(video.views || 0)} views</span>
+            <span>•</span>
+            <span>{uploadTimeCal(video.createdAt)}</span>
+          </div>
+
+          <Link
+            href={`/channel/${video.channel}`}
+            className="flex items-center gap-2 mb-2 hover:text-blue-600"
+          >
+            <Avatar className="w-6 h-6">
+              <AvatarFallback className="text-xs">
+                {extractInitials(video.channel)}
+              </AvatarFallback>
+            </Avatar>
+            <span className="text-sm">{video.channel}</span>
+          </Link>
+
+          {/* ✅ Static Description (can be made dynamic later) */}
+          <p className="text-sm text-muted-foreground line-clamp-2">
+            This is a sample video description that gives viewers an idea of
+            what the content is about. You can later replace this with a dynamic
+            description from your database.
           </p>
+
           {video.watchedon && (
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-muted-foreground mt-2">
               Watched {uploadTimeCal(video.watchedon)}
             </p>
           )}

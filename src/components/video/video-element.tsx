@@ -9,7 +9,7 @@ const VideoElement = ({ videoRef, video, isPlaying }: any) => (
       className="object-cover w-full h-full"
     />
     {!isPlaying && (
-      <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+      <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-1 rounded">
         {video.duration || '10:24'}
       </div>
     )}
