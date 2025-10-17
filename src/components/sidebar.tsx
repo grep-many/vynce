@@ -5,13 +5,17 @@ import {
   Clock,
   ThumbsUp,
   History,
-  User,
+  TvMinimalPlay,
 } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
 import { Button } from './ui/button';
+import ChannelDialogue from './channel/dialog';
 
 const Sidebar = () => {
+  const [hasChannel, setHasChannel] = React.useState(true);
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+
   //TODO: remove the below the static testing user object
   const user: any = {
     id: '1',
@@ -63,11 +67,11 @@ const Sidebar = () => {
                   Watch later
                 </Button>
               </Link>
-              {user?.channelname ? (
-                <Link href={`/channel/${user.id}`}>
+              {hasChannel ? (
+                <Link href={`/channel/${user._id}`}>
                   <Button variant="ghost" className="w-full justify-start">
-                    <User className="w-5 h-5 mr-3" />
-                    Your channel
+                    <TvMinimalPlay className="w-5 h-5 mr-3" />
+                    Your Channel
                   </Button>
                 </Link>
               ) : (
@@ -76,6 +80,7 @@ const Sidebar = () => {
                     variant="secondary"
                     size="sm"
                     className="w-full"
+                    onClick={() => setIsDialogOpen(true)}
                   >
                     Create Channel
                   </Button>
@@ -85,6 +90,11 @@ const Sidebar = () => {
           </>
         )}
       </nav>
+      <ChannelDialogue
+        isopen={isDialogOpen}
+        onclose={() => setIsDialogOpen(false)}
+        mode="create"
+      />
     </aside>
   );
 };
