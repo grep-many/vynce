@@ -26,9 +26,13 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { ModeToggle } from './mode-toggle';
 import { extractInitials } from '@/lib';
+import ChannelDialogue from './channel/dialog';
 
 const Header = () => {
   //TODO: remove the below the static testing user object
+  const [query, setQuery] = React.useState('');
+  const [hasChannel, setHasChannel] = React.useState(false)
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false)
 
   const user: any = {
     id: '1',
@@ -37,7 +41,6 @@ const Header = () => {
     image: 'https://github.com/shadcn.png?height=32&width=32',
   };
 
-  const [query, setQuery] = React.useState('');
 
   return (
     <header className="flex items-center justify-between px-4 py-2 border-b bg-background/70 backdrop-blur-2xl z-10">
@@ -128,12 +131,25 @@ const Header = () => {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href={`/channel/${user.id}`}>
-                    <TvMinimalPlay className="w-4 h-4" />
-                    Your channel
-                  </Link>
-                </DropdownMenuItem>
+                {hasChannel ? (
+                  <DropdownMenuItem asChild>
+                    <Link href={`/channel/${user?._id}`}>
+                      <TvMinimalPlay className="w-4 h-4" />
+                      Your channel
+                    </Link>
+                  </DropdownMenuItem>
+                ) : (
+                  <div className="px-2 py-1.5">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="w-full"
+                      onClick={() => setIsDialogOpen(true)}
+                    >
+                      Create Channel
+                    </Button>
+                  </div>
+                )}
                 <DropdownMenuItem asChild>
                   <Link href={`/history`}>
                     <History className="w-4 h-4" />
@@ -169,6 +185,7 @@ const Header = () => {
           </>
         )}
       </div>
+      <ChannelDialogue isopen={isDialogOpen} onclose={()=>setIsDialogOpen(false)} mode="create" />
     </header>
   );
 };
