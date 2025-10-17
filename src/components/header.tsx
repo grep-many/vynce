@@ -146,7 +146,7 @@ const Header = () => {
                   <DropdownMenuItem asChild>
                     <Link href={`/channel/${user?._id}`}>
                       <TvMinimalPlay className="w-4 h-4" />
-                      Your channel
+                      My channel
                     </Link>
                   </DropdownMenuItem>
                 ) : (

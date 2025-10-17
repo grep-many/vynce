@@ -4,13 +4,25 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Progress } from '../ui/progress';
+import { Textarea } from '../ui/textarea';
+import useVideo from '@/hooks/useVideo';
 
 const VideoUploader = ({ id, name }: any) => {
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
+  const {
+    uploadComplete,
+    isUploading,
+    uploadProgress,
+    setUploadComplete,
+    setIsUploading,
+    setUploadProgress,
+    upload,
+  } = useVideo();
   const [videoFile, setVideoFile] = useState<File | null>(null);
-  const [videoTitle, setVideoTitle] = useState('');
-  const [uploadComplete, setUploadComplete] = useState(false);
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+  });
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handlefilechange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -20,9 +32,19 @@ const VideoUploader = ({ id, name }: any) => {
     }
   };
 
+  const handleChange=  (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
   const resetForm = () => {
     setVideoFile(null);
-    setVideoTitle('');
+    setFormData({
+      title: '',
+      description: '',
+    });
     setIsUploading(false);
     setUploadProgress(0);
     setUploadComplete(false);
@@ -37,22 +59,13 @@ const VideoUploader = ({ id, name }: any) => {
 
   const handleUpload = async () => {
     if (!videoFile) return;
-
-    setIsUploading(true);
-    setUploadProgress(0);
-
-    // Simulated upload for demo
-    const interval = setInterval(() => {
-      setUploadProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setIsUploading(false);
-          setUploadComplete(true);
-          return 100;
-        }
-        return prev + 10;
-      });
-    }, 300);
+    // const data = new FormData();
+    // data.append('file', videoFile);
+    // data.append('title', formData.title);
+    // data.append('description', formData.description);
+    await upload({...formData,file:videoFile},
+      (percent:number) => setUploadProgress(percent),
+    );
   };
 
   return (
@@ -72,14 +85,12 @@ const VideoUploader = ({ id, name }: any) => {
             <p className="text-sm text-muted-foreground mt-1">
               or click to select files
             </p>
-            <p className="text-xs text-muted-foreground mt-4">
-              MP4, WebM, MOV or AVI • Up to 100MB
-            </p>
             <input
               type="file"
+              name="video"
               ref={fileInputRef}
               className="hidden"
-              accept="video/*"
+              accept="video/mp4"
               onChange={handlefilechange}
             />
           </div>
@@ -107,16 +118,28 @@ const VideoUploader = ({ id, name }: any) => {
               )}
             </div>
 
-            <div className="space-y-3">
-              <div>
+            <div className="space-y-2">
+              <div className="space-y-1">
                 <Label htmlFor="title">Title (required)</Label>
                 <Input
                   id="title"
-                  value={videoTitle}
-                  onChange={(e) => setVideoTitle(e.target.value)}
+                  value={formData.title}
+                  name="title"
+                  onChange={handleChange}
                   placeholder="Add a title that describes your video"
                   disabled={isUploading || uploadComplete}
                   className="mt-1"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="description">Description (required)</Label>
+                <Textarea
+                  id="description"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  rows={4}
+                  placeholder="Tell viewers about your video..."
                 />
               </div>
             </div>
@@ -144,7 +167,10 @@ const VideoUploader = ({ id, name }: any) => {
                   <Button
                     onClick={handleUpload}
                     disabled={
-                      isUploading || !videoTitle.trim() || uploadComplete
+                      isUploading ||
+                      !formData.title.trim() ||
+                      !formData.description.trim() ||
+                      uploadComplete
                     }
                   >
                     {isUploading ? 'Uploading...' : 'Upload'}
