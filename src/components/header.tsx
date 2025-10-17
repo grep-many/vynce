@@ -27,12 +27,14 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { ModeToggle } from './mode-toggle';
 import { extractInitials } from '@/lib';
 import ChannelDialogue from './channel/dialog';
+import { useRouter } from 'next/router';
 
 const Header = () => {
   //TODO: remove the below the static testing user object
   const [query, setQuery] = React.useState('');
   const [hasChannel, setHasChannel] = React.useState(false)
   const [isDialogOpen, setIsDialogOpen] = React.useState(false)
+  const router = useRouter();
 
   const user: any = {
     id: '1',
@@ -41,6 +43,18 @@ const Header = () => {
     image: 'https://github.com/shadcn.png?height=32&width=32',
   };
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (query.trim()) {
+      router.push(`/search/?q=${encodeURIComponent(query.trim())}`)
+    }
+  }
+
+  const handlekeypress = (e: React.KeyboardEvent)=>{
+    if (e.key === "Enter") {
+      handleSearch(e as any)
+    }
+  }
 
   return (
     <header className="flex items-center justify-between px-4 py-2 border-b bg-background/70 backdrop-blur-2xl z-10">
@@ -62,12 +76,13 @@ const Header = () => {
           <span className="text-xs text-muted-foreground ml-1">IN</span>
         </Link>
       </div>
-      <form className="flex items-center gap-2 flex-1 max-w-2xl mx-4">
+      <form onSubmit={handleSearch} className="flex items-center gap-2 flex-1 max-w-2xl mx-4">
         <div className="flex flex-1">
           <Input
             type="search"
             placeholder="Search"
             value={query}
+            onKeyDown={handlekeypress}
             onChange={({ target }) => setQuery(target.value)}
             className="rounded-l-full border-r-0 focus-visible:ring-0"
           />
