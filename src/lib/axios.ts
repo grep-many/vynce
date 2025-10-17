@@ -4,6 +4,7 @@ const baseURL = process.env.BASE_URL;
 
 const axiosInstance = axios.create({
   baseURL,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },

@@ -9,11 +9,9 @@ const userSchema = new mongoose.Schema<UserDocument>(
       unique: true,
       lowercase: true,
     },
-    channelname: {
-      type: String,
-    },
-    description: {
-      type: String,
+    channel: {
+      name: { type: String },
+      description: { type: String },
     },
     image: {
       type: String,
