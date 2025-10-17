@@ -3,7 +3,7 @@ import { NextPageContext } from 'next';
 
 function Error({ statusCode }: { statusCode?: number }) {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen text-center">
+    <div className="flex h-full flex-col justify-center items-center">
       <h1 className="text-5xl font-bold mb-2">
         {statusCode ? `Error ${statusCode}` : 'An unexpected error occurred'}
       </h1>

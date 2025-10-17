@@ -28,6 +28,8 @@ import { ModeToggle } from './mode-toggle';
 import { extractInitials } from '@/lib';
 import ChannelDialogue from './channel/dialog';
 import { useRouter } from 'next/router';
+import useAuth from '@/hooks/useAuth';
+import Image from 'next/image';
 
 const Header = () => {
   //TODO: remove the below the static testing user object
@@ -35,13 +37,7 @@ const Header = () => {
   const [hasChannel, setHasChannel] = React.useState(false)
   const [isDialogOpen, setIsDialogOpen] = React.useState(false)
   const router = useRouter();
-
-  const user: any = {
-    id: '1',
-    name: 'John Doe',
-    email: 'john@example.com',
-    image: 'https://github.com/shadcn.png?height=32&width=32',
-  };
+  const { user, logOut, googleSignIn } = useAuth();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -63,20 +59,21 @@ const Header = () => {
           <Menu className="w-6 h-6" />
         </Button>
         <Link href="/" className="flex items-center gap-1">
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            className="text-foreground"
-            fill="currentColor"
-          >
-            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-          </svg>
+          <Image
+            src="/logo.png"
+            height={30}
+            width={30}
+            alt="vince"
+            className="invert-0 dark:invert"
+          />
           <span className="text-xl font-medium">Vynce</span>
           <span className="text-xs text-muted-foreground ml-1">IN</span>
         </Link>
       </div>
-      <form onSubmit={handleSearch} className="flex items-center gap-2 flex-1 max-w-2xl mx-4">
+      <form
+        onSubmit={handleSearch}
+        className="flex items-center gap-2 flex-1 max-w-2xl mx-4"
+      >
         <div className="flex flex-1">
           <Input
             type="search"
@@ -184,7 +181,7 @@ const Header = () => {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-destructive">
+                <DropdownMenuItem className="text-destructive" onClick={logOut}>
                   <LogOut className="w-4 h-4 text-destructive" />
                   Sign Out
                 </DropdownMenuItem>
@@ -193,14 +190,22 @@ const Header = () => {
           </>
         ) : (
           <>
-            <Button variant="outline" className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              className="flex items-center gap-2"
+              onClick={googleSignIn}
+            >
               <User className="w-4 h-4" />
               Sign in
             </Button>
           </>
         )}
       </div>
-      <ChannelDialogue isopen={isDialogOpen} onclose={()=>setIsDialogOpen(false)} mode="create" />
+      <ChannelDialogue
+        isopen={isDialogOpen}
+        onclose={() => setIsDialogOpen(false)}
+        mode="create"
+      />
     </header>
   );
 };
