@@ -10,6 +10,7 @@ import {
   ThumbsDown,
   ThumbsUp,
 } from 'lucide-react';
+import useAuth from '@/hooks/useAuth';
 
 const VideoInfo = ({ video }: any) => {
   //TODO: refactor state management looks messy this way use object
@@ -18,14 +19,9 @@ const VideoInfo = ({ video }: any) => {
   const [isLiked, setIsLiked] = React.useState(false);
   const [isDisliked, setIsDisliked] = React.useState(false);
   const [showFullDescription, setShowFullDescription] = React.useState(false);
+  const {user} = useAuth()
 
   //TODO: remove the below the static testing user object
-  const user: any = {
-    id: '1',
-    name: 'John Doe',
-    email: 'john@example.com',
-    image: 'https://github.com/shadcn.png?height=32&width=32',
-  };
 
   React.useEffect(() => {
     setLikes(video.like | 0);
