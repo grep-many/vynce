@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from '../ui/button';
+import { toast } from 'sonner';
 
 const tabs = [
   { id: 'home', label: 'Home' },
@@ -13,6 +14,11 @@ const tabs = [
 const ChannelTabs = () => {
   const [activeTab, setActiveTab] = useState('videos');
 
+  const handleClick=({id,label})=> {
+    setActiveTab(id);
+    toast.warning(`${id} is just for demo!`)
+  }
+
   return (
     <div className="border-b border-border bg-background px-4">
       <div className="flex gap-4 overflow-x-auto">
@@ -25,7 +31,7 @@ const ChannelTabs = () => {
                 ? 'border-foreground text-foreground'
                 : 'border-transparent text-muted-foreground hover:text-foreground'
             }`}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={()=>handleClick(tab)}
           >
             {tab.label}
           </Button>

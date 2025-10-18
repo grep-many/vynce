@@ -1,7 +1,6 @@
 import React from 'react';
 import { toast } from 'sonner';
 import {
-  createOrUpdateChannel,
   toggleSubscription,
   getSubscribedChannels,
   getChannelById,
@@ -18,6 +17,7 @@ interface Channel {
 interface ChannelContextType {
   channel?: Channel;
   subscribedChannels: Channel[];
+  setSubscribedChannels: React.Dispatch<React.SetStateAction<Channel[]>>;
   loading: boolean;
   fetchChannel: (id: string) => Promise<void>;
   subscribe: (channelId: string) => Promise<void>;
@@ -27,6 +27,7 @@ interface ChannelContextType {
 export const ChannelContext = React.createContext<ChannelContextType>({
   channel: undefined,
   subscribedChannels: [],
+  setSubscribedChannels: () => {},
   loading: false,
   fetchChannel: async () => {},
   subscribe: async () => {},
@@ -46,8 +47,10 @@ export const ChannelProvider: React.FC<ProviderProps> = ({ children }) => {
 
   const fetchChannel = async (id: string) => {
     setLoading(true);
+
     try {
       const res = await getChannelById(id);
+
       setChannel(res.channel);
     } catch (err: any) {
       toast.error(err.message || 'Failed to fetch channel');
@@ -56,9 +59,9 @@ export const ChannelProvider: React.FC<ProviderProps> = ({ children }) => {
     }
   };
 
-  const subscribe = async (channelId: string) => {
+  const subscribe = async (id: string) => {
     try {
-      const res = await toggleSubscription(channelId);
+      const res = await toggleSubscription(id);
       toast.success(res.message);
       await fetchSubscribedChannels(); // refresh subscriptions
     } catch (err: any) {
@@ -69,8 +72,9 @@ export const ChannelProvider: React.FC<ProviderProps> = ({ children }) => {
   const fetchSubscribedChannels = async () => {
     setLoading(true);
     try {
-      const res = await getSubscribedChannels();
-      setSubscribedChannels(res.channels || []);
+      await getSubscribedChannels().then((res) => {
+        setSubscribedChannels(res.channels);
+      });
     } catch (err: any) {
       toast.error(err.message || 'Failed to fetch subscriptions');
     } finally {
@@ -83,6 +87,7 @@ export const ChannelProvider: React.FC<ProviderProps> = ({ children }) => {
       value={{
         channel,
         subscribedChannels,
+        setSubscribedChannels,
         loading,
         fetchChannel,
         subscribe,

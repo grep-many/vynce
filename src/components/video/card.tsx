@@ -12,11 +12,27 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
 
-type VideoCardProps = {
-  video: any;
-  type?: 'default' | 'related' | 'content';
+export type VideoType = 'default' | 'related' | 'content';
+
+interface ChannelInfo {
+  _id: string;
+  name: string;
+  image?: string;
+}
+
+export interface VideoCardProps {
+  video: {
+    _id: string;
+    title: string;
+    description: string;
+    channel: string | ChannelInfo;
+    views?: number;
+    createdAt: string | Date;
+    watchedon?: string | Date;
+  };
+  type?: VideoType;
   onRemove?: (id: string) => void;
-};
+}
 
 const VideoCard: React.FC<VideoCardProps> = ({
   video,
@@ -25,6 +41,21 @@ const VideoCard: React.FC<VideoCardProps> = ({
 }) => {
   const videoRef = React.useRef<HTMLVideoElement | null>(null);
   const [isPlaying, setIsPlaying] = React.useState(false);
+
+  // --- Normalize channel data ---
+  const channel =
+    typeof video.channel === 'object'
+      ? video.channel
+      : { _id: '', name: video.channel || 'Unknown Channel' };
+
+  const channelName = channel.name;
+  const channelId = channel._id;
+  const initials = extractInitials(channelName);
+
+  // --- Format other data ---
+  const viewsText = formatViews(video?.views || 0);
+  const uploadTime = uploadTimeCal(video?.createdAt);
+  const watchedTime = video?.watchedon ? uploadTimeCal(video?.watchedon) : null;
 
   const handleMouseEnter = () => {
     if (videoRef.current) {
@@ -43,18 +74,17 @@ const VideoCard: React.FC<VideoCardProps> = ({
   };
 
   // =========================================================
-  // Related Videos
+  // RELATED VIDEOS
   // =========================================================
   if (type === 'related') {
     return (
       <Link
-        // key={video?._id}
         href={`/watch/${video?._id}`}
-        className="flex gap-2 group hover:bg-secondary rounded-lg p-1"
+        className="flex gap-2 group hover:bg-secondary rounded-lg p-1 transition-colors"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-        <div className="w-40 flex-shrink-0">
+        <div className="w-36 sm:w-40 flex-shrink-0">
           <VideoElement
             videoRef={videoRef}
             video={video}
@@ -65,10 +95,9 @@ const VideoCard: React.FC<VideoCardProps> = ({
           <h3 className="font-medium text-sm line-clamp-2 group-hover:text-blue-600">
             {video?.title}
           </h3>
-          <p className="text-xs text-muted-foreground mt-1">{video?.channel}</p>
+          <p className="text-xs text-muted-foreground mt-1">{channelName}</p>
           <p className="text-xs text-muted-foreground">
-            {formatViews(video?.views || 0)} views •{' '}
-            {uploadTimeCal(video?.createdAt)}
+            {viewsText} views • {uploadTime}
           </p>
         </div>
       </Link>
@@ -76,65 +105,63 @@ const VideoCard: React.FC<VideoCardProps> = ({
   }
 
   // =========================================================
-  // History Videos (Updated layout to match SearchResult style + description)
+  // CONTENT / HISTORY VIDEOS
   // =========================================================
   if (type === 'content') {
     return (
       <div
-        // key={video?._id}
-        className="flex gap-4 group rounded-lg p-2 hover:bg-secondary/20 transition-all"
+        className="flex flex-col sm:flex-row gap-4 group rounded-lg p-2 hover:bg-secondary/20 transition-all"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
         {/* Thumbnail */}
-        <Link href={`/watch/${video?._id}`} className="flex-shrink-0">
-          <div className="relative w-80 aspect-video rounded-lg overflow-hidden bg-muted">
-            <VideoElement
-              videoRef={videoRef}
-              video={video}
-              isPlaying={isPlaying}
-            />
-          </div>
+        <Link
+          href={`/watch/${video?._id}`}
+          className="flex-shrink-0 w-full sm:w-80 aspect-video relative rounded-lg overflow-hidden bg-muted"
+        >
+          <VideoElement
+            videoRef={videoRef}
+            video={video}
+            isPlaying={isPlaying}
+          />
         </Link>
 
-        {/* Video Info */}
+        {/* Info */}
         <div className="flex-1 min-w-0 py-1">
           <Link href={`/watch/${video?._id}`}>
             <h3 className="font-medium text-lg line-clamp-2 group-hover:text-blue-600 mb-2">
-              {video.title}
+              {video?.title}
             </h3>
           </Link>
 
-          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-            <span>{formatViews(video?.views || 0)} views</span>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2 flex-wrap">
+            <span>{viewsText} views</span>
             <span>•</span>
-            <span>{uploadTimeCal(video?.createdAt)}</span>
+            <span>{uploadTime}</span>
           </div>
 
           <Link
-            href={`/channel/${video?.channel}`}
+            href={`/channel/${channelId}`}
             className="flex items-center gap-2 mb-2 hover:text-blue-600"
           >
             <Avatar className="w-6 h-6">
-              <AvatarFallback className="text-xs">
-                {extractInitials(video?.channel)}
-              </AvatarFallback>
+              <AvatarFallback className="text-xs">{initials}</AvatarFallback>
             </Avatar>
-            <span className="text-sm">{video?.channel}</span>
+            <span className="text-sm">{channelName}</span>
           </Link>
 
-          {/* ✅ Static Description (can be made dynamic later) */}
-          <p className="text-sm text-muted-foreground line-clamp-2">{video.description}
+          <p className="text-sm text-muted-foreground line-clamp-2">
+            {video?.description}
           </p>
 
-          {video?.watchedon && (
+          {watchedTime && (
             <p className="text-xs text-muted-foreground mt-2">
-              Watched {uploadTimeCal(video?.watchedon)}
+              Watched {watchedTime}
             </p>
           )}
         </div>
 
-        {/* Dropdown Menu */}
+        {/* Dropdown */}
         {onRemove && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -159,7 +186,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
   }
 
   // =========================================================
-  // Default Video Card
+  // DEFAULT VIDEO CARD
   // =========================================================
   return (
     <Link href={`/watch/${video?._id}`}>
@@ -172,7 +199,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
         <div className="flex mt-3 space-x-3">
           <div className="flex-shrink-0 w-10 h-10">
             <Avatar>
-              <AvatarFallback>{extractInitials(video?.channel)}</AvatarFallback>
+              <AvatarFallback>{initials}</AvatarFallback>
             </Avatar>
           </div>
           <div className="flex flex-col overflow-hidden">
@@ -182,11 +209,10 @@ const VideoCard: React.FC<VideoCardProps> = ({
                 : video?.title}
             </h3>
             <p className="text-xs text-muted-foreground truncate">
-              {video?.channel}
+              {channelName}
             </p>
             <p className="text-xs text-muted-foreground">
-              {formatViews(video?.views || 0)} views •{' '}
-              {uploadTimeCal(video?.createdAt)}
+              {viewsText} views • {uploadTime}
             </p>
           </div>
         </div>

@@ -11,7 +11,7 @@ const Channel = () => {
   const router = useRouter();
   const { id } = router.query;
   const { user } = useAuth()
-  const { channel, fetchChannel } = useChannel()
+  const { channel, fetchChannel } = useChannel();
   
   React.useEffect(() => {
     if (!id) return; // wait until id is available
@@ -61,7 +61,7 @@ const Channel = () => {
           <VideoUploader channelId={id} channelName={channel?.name} />
         </div>
         <div className="px-4 pb-8">
-          <ChannelVideos videos={videos} />
+          <ChannelVideos videos={channel.videos} />
         </div>
       </div>
     </>

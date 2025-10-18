@@ -66,7 +66,6 @@ export const AuthProvider: React.FC<ProviderProps> = ({ children }) => {
     try {
       const { message, user, channel } = await createOrUpdateChannel(payload);
       setUser(user);
-      console.log(user);
       toast.success(message);
       return channel;
     } catch (err: any) {

@@ -52,27 +52,15 @@ export const getVideos = async ({
   search,
   channel,
 }: VideoFilters) => {
-  try {
-    let query = '';
-
-    const params = new URLSearchParams();
-
-    params.append('page', page.toString());
-    params.append('limit', limit.toString());
-    if (search) params.append('search', search);
-    if (channel) params.append('channel', channel);
-
-    query = `?${params.toString()}`;
-
-    const res = await axiosInstance.get(`/video${query}`);
-    return res.data;
-  } catch (err: unknown) {
-    throw (
-      (err as AxiosError<{ message: string }>).response?.data?.message ||
-      (err instanceof Error ? err.message : String(err))
-    );
-  }
+  const params = new URLSearchParams();
+  params.append('page', page.toString());
+  params.append('limit', limit.toString());
+  if (search) params.append('search', search);
+  if (channel) params.append('channel', channel); // backend expects name to find ObjectId
+  const res = await axiosInstance.get(`/video?${params.toString()}`);
+  return res.data;
 };
+
 
 export const getVideo = async (id:string) => {
   try {

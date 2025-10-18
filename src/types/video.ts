@@ -7,12 +7,11 @@ export interface Video extends mongoose.Document {
   filetype: string;
   filepath: string;
   filesize: string;
-  channel: string;
+  channel: any;
   likes: any;
   dislikes: any;
   watchLater: any;
   views: number;
-  uploader: string;
   createdAt: Date; // Mongo timestamps can be Date
   updatedAt: Date;
 }

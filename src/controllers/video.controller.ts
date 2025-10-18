@@ -4,127 +4,134 @@ import Video from '@/models/video.model';
 import User from '@/models/user.model';
 import { getBaseUrl } from '@/lib';
 
-// Extend NextApiRequest to include `user` from authentication middleware
 interface AuthenticatedRequest extends NextApiRequest {
-  user?: {
-    _id: string;
-  };
+  user?: { _id: string };
 }
 
-// Helper to unwrap Formidable fields
+// Helper to normalize Formidable fields
 const normalizeField = (
   field: string | string[] | undefined,
 ): string | undefined => (Array.isArray(field) ? field[0] : field);
 
+/**
+ * 📤 Upload a new video
+ */
 export const uploadVideo = async (
   req: AuthenticatedRequest,
   res: NextApiResponse,
 ) => {
   try {
-    // Check authentication
     if (!req.user?._id)
       return res.status(401).json({ message: 'Unauthorized' });
 
-    // Parse the video file and fields
+    // Parse form data + file
     const { fields, file }: { fields: any; file: UploadedFile } =
       await uploadFile(req);
 
-    // Validate file type
-    if (!file.filetype || !file.filetype.startsWith('video/')) {
+    if (!file.filetype?.startsWith('video/')) {
       return res.status(400).json({ message: 'Only video files are allowed' });
     }
 
-    // Fetch uploader info (e.g., channel name) from User model
-    const uploader = await User.findById(req.user._id);
-    if (!uploader) return res.status(404).json({ message: 'User not found' });
+    // Get user's channel
+    const user = await User.findById(req.user._id).populate('channel');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    if (!user.channel)
+      return res.status(404).json({ message: 'User has no channel' });
 
-    const channel = uploader.channel?.name;
-    if (!channel) return res.status(404).json({ message: 'Channel not found' });
-
-    // Normalize fields to plain strings
+    // Extract fields
     const title = normalizeField(fields.title) || file.filename;
     const description = normalizeField(fields.description) || '';
 
-    // Save video info to MongoDB
+    // Create new video
     const video = new Video({
       title,
       description,
-      ...file,
-      // filename: file.filename,
-      // filetype: file.filetype,
-      // filepath: file.filepath,
-      // filesize: `${file.filesize}`, // string to match schema
-      channel,
-      uploader: req.user._id,
+      filename: file.filename,
+      filetype: file.filetype,
+      filepath: file.filepath,
+      filesize: `${file.filesize}`,
+      channel: user.channel._id,
     });
 
     await video.save();
 
-    res.status(201).json({ message: 'Upload successful!', video });
+    const populatedVideo = await video.populate('channel', 'name image');
+
+    return res.status(201).json({
+      message: 'Upload successful!',
+      video: populatedVideo,
+    });
   } catch (err: any) {
     console.error('Upload Video Error:', err);
-    res.status(500).json({
+    return res.status(500).json({
       message: 'Something went wrong while uploading the video!',
       error: err.message || err,
     });
   }
 };
 
-// helper function
-const parseStringQuery = (
-  value: string | string[] | undefined,
-): string | undefined => (Array.isArray(value) ? value[0] : value);
-
+/**
+ * 📺 Get videos (single or list)
+ */
 export const getVideo = async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     const { id, page, limit, channel, search } = req.query;
     const host = getBaseUrl(req);
 
-    // --- 1️⃣ Single video by ID ---
+    // --- 1️⃣ Get a single video by ID ---
     if (id) {
-      const videoId = parseStringQuery(id);
-      const video = await Video.findById(videoId).lean();
+      const videoId = Array.isArray(id) ? id[0] : id;
+      const video = await Video.findById(videoId)
+        .populate('channel', 'name image')
+        .lean();
+
       if (!video) return res.status(404).json({ message: 'Video not found' });
 
       return res.status(200).json({
         message: 'Video found',
         video: {
           ...video,
-          filepath: `${host}/api/video/stream/${video._id}`, // placeholder for future streaming
+          filepath: `${host}/api/video/stream/${video._id}`,
           likes: video.likes.length,
           dislikes: video.dislikes.length,
         },
       });
     }
 
-    // --- 2️⃣ List / filter videos ---
-    let videosQuery = Video.find();
+    // --- 2️⃣ Get multiple videos ---
+    let query = Video.find();
 
-    if (channel)
-      videosQuery = videosQuery
+    if (channel) {
+      query = query
         .where('channel')
-        .equals(parseStringQuery(channel));
-
-    if (search) {
-      const regex = new RegExp(parseStringQuery(search) || '', 'i');
-      videosQuery = videosQuery.or([{ title: regex }, { description: regex }]);
+        .equals(Array.isArray(channel) ? channel[0] : channel);
     }
 
-    videosQuery = videosQuery.sort({ createdAt: -1 }).lean();
+    if (search) {
+      const regex = new RegExp(Array.isArray(search) ? search[0] : search, 'i');
+      query = query.or([{ title: regex }, { description: regex }]);
+    }
 
-    // Pagination
-    const pageNum = parseInt(parseStringQuery(page) || '1', 10);
-    const limitNum = parseInt(parseStringQuery(limit) || '10', 10);
+    query = query
+      .populate('channel', 'name image')
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const pageNum = parseInt(Array.isArray(page) ? page[0] : page || '1', 10);
+    const limitNum = parseInt(
+      Array.isArray(limit) ? limit[0] : limit || '10',
+      10,
+    );
     const skip = (pageNum - 1) * limitNum;
 
-    const total = await Video.countDocuments(videosQuery.getFilter());
-    const videos = await videosQuery.skip(skip).limit(limitNum);
+    const total = await Video.countDocuments(query.getFilter());
+    const videos = await query.skip(skip).limit(limitNum);
 
-    const videosWithStream = videos.map((v: any) => ({
+    const videosWithStream = videos.map((v) => ({
       ...v,
       filepath: `${host}/api/video/stream/${v._id}`,
       likes: v.likes.length,
-      dislikes: v.dislikes.length
+      dislikes: v.dislikes.length,
     }));
 
     return res.status(200).json({
