@@ -44,6 +44,8 @@ export const login = async (req: APIReq, res: NextApiResponse) => {
         secure: process.env.NODE_ENV === 'production',
       }),
     );
+
+    user = await User.findById(user._id).populate('channel');
     return res.status(newbie ? 201 : 200).json({
       message: `Welcome ${newbie ? '' : 'Back'}! ${name.split(/\s+/)[0]}`,
       user,

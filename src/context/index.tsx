@@ -7,23 +7,26 @@ import { CommentProvider } from './comment.context';
 import { LikeProvider } from './like.context';
 import { WatchProvider } from './watch.context';
 import { HistoryProvider } from './history.context';
+import { ChannelProvider } from './channel.context';
 
 const AppProvider = ({ children }: any) => {
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <AuthProvider>
-        <VideoProvider>
-          <CommentProvider>
-            <LikeProvider>
-              <WatchProvider>
-                <HistoryProvider>
-                  <Toaster />
-                  {children}
-                </HistoryProvider>
-              </WatchProvider>
-            </LikeProvider>
-          </CommentProvider>
-        </VideoProvider>
+        <ChannelProvider>
+          <VideoProvider>
+            <CommentProvider>
+              <LikeProvider>
+                <WatchProvider>
+                  <HistoryProvider>
+                    <Toaster />
+                    {children}
+                  </HistoryProvider>
+                </WatchProvider>
+              </LikeProvider>
+            </CommentProvider>
+          </VideoProvider>
+        </ChannelProvider>
       </AuthProvider>
     </ThemeProvider>
   );

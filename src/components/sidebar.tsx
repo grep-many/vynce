@@ -55,7 +55,7 @@ const Sidebar = () => {
                 </Button>
               </Link>
               {user?.channel ? (
-                <Link href={`/channel/${user._id}`}>
+                <Link href={`/channel/${user.channel._id}`}>
                   <Button variant="ghost" className="w-full justify-start">
                     <TvMinimalPlay className="w-5 h-5 mr-3" />
                     My Channel
