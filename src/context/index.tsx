@@ -4,6 +4,7 @@ import { AuthProvider } from './auth.context';
 import { Toaster } from '@/components/ui/sonner';
 import { VideoProvider } from './video.context';
 import { CommentProvider } from './comment.context';
+import { LikeProvider } from './like.context';
 
 const AppProvider = ({ children }: any) => {
   return (
@@ -11,8 +12,10 @@ const AppProvider = ({ children }: any) => {
       <AuthProvider>
         <VideoProvider>
           <CommentProvider>
-            <Toaster />
-            {children}
+            <LikeProvider>
+              <Toaster />
+              {children}
+            </LikeProvider>
           </CommentProvider>
         </VideoProvider>
       </AuthProvider>

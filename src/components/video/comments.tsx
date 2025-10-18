@@ -3,7 +3,13 @@ import React, { useEffect, useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Textarea } from '../ui/textarea';
 import { Button } from '../ui/button';
-import { Edit, Trash2 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
+import { MoreVertical, Edit, Trash2 } from 'lucide-react';
 import { extractInitials, uploadTimeCal } from '@/lib';
 import useAuth from '@/hooks/useAuth';
 import useComment from '@/hooks/useComment';
@@ -22,7 +28,6 @@ const VideoComments: React.FC<VideoCommentsProps> = ({ videoId }) => {
   const [editText, setEditText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Fetch comments when videoId changes
   useEffect(() => {
     if (videoId) fetchComments(videoId);
   }, [videoId]);
@@ -61,32 +66,31 @@ const VideoComments: React.FC<VideoCommentsProps> = ({ videoId }) => {
 
       {/* New Comment */}
       {user && (
-        <div className="flex gap-4">
-          <Avatar className="w-10 h-10">
-            {user.image ? (
+        <div className="flex flex-col sm:flex-row gap-4">
+          <Avatar className="w-10 h-10 flex-shrink-0">
               <AvatarImage src={user.image} />
-            ) : (
               <AvatarFallback>{extractInitials(user.name)}</AvatarFallback>
-            )}
           </Avatar>
-          <div className="flex-1 space-y-2">
+          <div className="flex-1 flex flex-col space-y-2">
             <Textarea
               placeholder="Add a comment..."
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
               className="min-h-[80px] resize-none border-0 border-b-2 rounded-none focus-visible:ring-0"
             />
-            <div className="flex gap-2 justify-end">
+            <div className="flex flex-wrap gap-2 justify-end">
               <Button
                 variant="secondary"
                 onClick={() => setNewComment('')}
                 disabled={!newComment.trim()}
+                size="sm"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleSubmitComment}
                 disabled={!newComment.trim() || isSubmitting}
+                size="sm"
               >
                 Comment
               </Button>
@@ -103,18 +107,18 @@ const VideoComments: React.FC<VideoCommentsProps> = ({ videoId }) => {
           </p>
         ) : (
           comments.map((comment) => (
-            <div key={comment._id} className="flex gap-4">
-              <Avatar className="w-10 h-10">
-                {comment.userImage ? (
+            <div
+              key={comment._id}
+              className="flex flex-col sm:flex-row gap-4 items-start sm:items-center"
+            >
+              <Avatar className="w-10 h-10 flex-shrink-0">
                   <AvatarImage src={comment.userImage} />
-                ) : (
                   <AvatarFallback>
                     {extractInitials(comment.userName)}
                   </AvatarFallback>
-                )}
               </Avatar>
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
+              <div className="flex-1 w-full">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 mb-1">
                   <span className="font-medium text-sm">
                     {comment.userName}
                   </span>
@@ -133,10 +137,11 @@ const VideoComments: React.FC<VideoCommentsProps> = ({ videoId }) => {
                       value={editText}
                       onChange={(e) => setEditText(e.target.value)}
                     />
-                    <div className="flex gap-2 justify-end">
+                    <div className="flex flex-wrap gap-2 justify-end">
                       <Button
                         onClick={handleUpdateComment}
                         disabled={!editText.trim()}
+                        size="sm"
                       >
                         Save
                       </Button>
@@ -146,35 +151,49 @@ const VideoComments: React.FC<VideoCommentsProps> = ({ videoId }) => {
                           setEditingCommentId(null);
                           setEditText('');
                         }}
+                        size="sm"
                       >
                         Cancel
                       </Button>
                     </div>
                   </div>
                 ) : (
-                  <>
-                    <p className="text-sm">{comment.commentbody}</p>
+                  <div className="flex justify-between items-start sm:items-center">
+                    <p className="text-sm break-words">{comment.commentbody}</p>
 
-                    {/* Edit/Delete Buttons */}
+                    {/* Dropdown for edit/delete */}
                     {comment.userid === user?._id && (
-                      <div className="flex gap-2 mt-2 text-sm text-muted">
-                        <button
-                          className="hover:text-primary transition"
-                          onClick={() =>
-                            handleEditClick(comment._id, comment.commentbody)
-                          }
-                        >
-                          <Edit size={16} />
-                        </button>
-                        <button
-                          className="hover:text-destructive transition"
-                          onClick={() => handleDeleteComment(comment._id)}
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            aria-label="Comment actions"
+                          >
+                            <MoreVertical size={16} />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-32">
+                          <DropdownMenuItem
+                            onClick={() =>
+                              handleEditClick(comment._id, comment.commentbody)
+                            }
+                          >
+                            <Edit size={16} className="mr-2" /> Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleDeleteComment(comment._id)}
+                          >
+                            <Trash2
+                              size={16}
+                              className="mr-2 text-destructive"
+                            />{' '}
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     )}
-                  </>
+                  </div>
                 )}
               </div>
             </div>

@@ -7,7 +7,7 @@ import cookie from 'cookie';
 export const accessSecret = process.env.ACCESS_TOKEN_SECRET || 'secret';
 
 export interface APIReq extends NextApiRequest{
-  user: {
+  user?: {
     _id:string
   }
 }

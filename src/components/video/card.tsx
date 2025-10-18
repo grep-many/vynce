@@ -101,7 +101,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
         <div className="flex-1 min-w-0 py-1">
           <Link href={`/watch/${video?._id}`}>
             <h3 className="font-medium text-lg line-clamp-2 group-hover:text-blue-600 mb-2">
-              {video?.title}
+              {video.title}
             </h3>
           </Link>
 
@@ -124,10 +124,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
           </Link>
 
           {/* ✅ Static Description (can be made dynamic later) */}
-          <p className="text-sm text-muted-foreground line-clamp-2">
-            This is a sample video description that gives viewers an idea of
-            what the content is about. You can later replace this with a dynamic
-            description from your database.
+          <p className="text-sm text-muted-foreground line-clamp-2">{video.description}
           </p>
 
           {video?.watchedon && (

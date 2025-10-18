@@ -23,7 +23,7 @@ interface VideoContextType {
   setUploadProgress: React.Dispatch<React.SetStateAction<number>>;
   fetchVideos: (page?: number) => Promise<void>;
   fetchVideo: (id: string) => Promise<void>;
-  likeVideo: (id: string,like:boolean) => Promise<void>;
+  reactVideo: (id: string,like:boolean) => Promise<void>;
   upload: (
     data: UploadVideoData,
     onUploadProgress: (percent: number) => void,
@@ -44,7 +44,7 @@ export const VideoContext = React.createContext<VideoContextType>({
   fetchVideos: async () => {},
   fetchVideo: async () => {},
   upload: async () => { },
-  likeVideo: async () => { }
+  reactVideo: async () => { }
 });
 
 export const VideoProvider: React.FC<ProviderProps> = ({ children }) => {
@@ -92,14 +92,7 @@ export const VideoProvider: React.FC<ProviderProps> = ({ children }) => {
     }
   };
 
-  const reactVideo = async (id: string, like: boolean) => {
-    try {
-      const { message } = likeVideo(id, like);
-      toast.success(message)
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to fetch videos');
-    }
-  };
+ 
 
   // --- Fetch single video by ID ---
   const fetchVideo = async (id: string) => {
@@ -161,7 +154,6 @@ export const VideoProvider: React.FC<ProviderProps> = ({ children }) => {
         fetchVideos,
         fetchVideo,
         upload,
-        likeVideo
       }}
     >
       {children}
