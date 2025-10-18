@@ -3,13 +3,21 @@ import ChannelTabs from '@/components/channel/tabs';
 import ChannelVideos from '@/components/channel/videos';
 import VideoUploader from '@/components/video/uploader';
 import useAuth from '@/hooks/useAuth';
+import useChannel from '@/hooks/useChannel';
 import { useRouter } from 'next/router';
 import React from 'react';
 
 const Channel = () => {
   const router = useRouter();
   const { id } = router.query;
-  const {user} = useAuth()
+  const { user } = useAuth()
+  const { channel, fetchChannel } = useChannel()
+  
+  React.useEffect(() => {
+    if (!id) return; // wait until id is available
+    fetchChannel(id as string);
+  }, [id]);
+  
   // TODO: remove below static videos object
   const videos = [
     {
@@ -39,15 +47,7 @@ const Channel = () => {
       createdAt: new Date(Date.now() - 86400000).toISOString(),
     },
   ];
-  // let channel = null
-  let channel = {
-    id: id,
-    name: 'Tech Channel',
-    email: 'tech@example.com',
-    description:
-      'Welcome to our channel! We cover the latest in technology , reviews and tutorials',
-    joinedOn: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString(),
-  };
+
   // channel=null
   if (!channel) {
     return <div>Not Found</div>;

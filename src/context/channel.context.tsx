@@ -1,0 +1,95 @@
+import React from 'react';
+import { toast } from 'sonner';
+import {
+  createOrUpdateChannel,
+  toggleSubscription,
+  getSubscribedChannels,
+  getChannelById,
+} from '@/services/channel.service';
+
+interface Channel {
+  _id: string;
+  name: string;
+  description?: string;
+  image?: string;
+  subscribers?: number;
+}
+
+interface ChannelContextType {
+  channel?: Channel;
+  subscribedChannels: Channel[];
+  loading: boolean;
+  fetchChannel: (id: string) => Promise<void>;
+  subscribe: (channelId: string) => Promise<void>;
+  fetchSubscribedChannels: () => Promise<void>;
+}
+
+export const ChannelContext = React.createContext<ChannelContextType>({
+  channel: undefined,
+  subscribedChannels: [],
+  loading: false,
+  fetchChannel: async () => {},
+  subscribe: async () => {},
+  fetchSubscribedChannels: async () => {},
+});
+
+interface ProviderProps {
+  children: React.ReactNode;
+}
+
+export const ChannelProvider: React.FC<ProviderProps> = ({ children }) => {
+  const [channel, setChannel] = React.useState<Channel>();
+  const [subscribedChannels, setSubscribedChannels] = React.useState<Channel[]>(
+    [],
+  );
+  const [loading, setLoading] = React.useState(false);
+
+  const fetchChannel = async (id: string) => {
+    setLoading(true);
+    try {
+      const res = await getChannelById(id);
+      setChannel(res.channel);
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to fetch channel');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const subscribe = async (channelId: string) => {
+    try {
+      const res = await toggleSubscription(channelId);
+      toast.success(res.message);
+      await fetchSubscribedChannels(); // refresh subscriptions
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to toggle subscription');
+    }
+  };
+
+  const fetchSubscribedChannels = async () => {
+    setLoading(true);
+    try {
+      const res = await getSubscribedChannels();
+      setSubscribedChannels(res.channels || []);
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to fetch subscriptions');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <ChannelContext.Provider
+      value={{
+        channel,
+        subscribedChannels,
+        loading,
+        fetchChannel,
+        subscribe,
+        fetchSubscribedChannels,
+      }}
+    >
+      {children}
+    </ChannelContext.Provider>
+  );
+};

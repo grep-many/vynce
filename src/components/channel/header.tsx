@@ -15,23 +15,23 @@ const ChannelHeader = ({ channel, user }: any) => {
         <div className="flex flex-col md:flex-row gap-6 items-start">
           <Avatar className="w-20 h-20 md:w-32 md:h-32">
             <AvatarFallback className="text-5xl md:text-6xl bg-blend-difference">
-              {extractInitials(user?.channel?.name)}
+              {extractInitials(channel?.name)}
             </AvatarFallback>
           </Avatar>
 
           <div className="flex-1 space-y-2">
-            <h1 className="text-2xl md:text-4xl font-bold">{user?.channel?.name}</h1>
+            <h1 className="text-2xl md:text-4xl font-bold">{channel?.name}</h1>
             <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-              <span>@{user?.channel?.name.toLowerCase().replace(/\s+/g, '')}</span>
+              <span>@{channel?.name.toLowerCase().replace(/\s+/g, '')}</span>
             </div>
-            {user?.channel?.description && (
+            {channel?.description && (
               <p className="text-sm text-accent-foreground max-w-2xl">
-                {user?.channel?.description}
+                {channel?.description}
               </p>
             )}
           </div>
 
-          {user && user?._id !== user?.channel?._id && (
+          {user && user?._id !== channel?._id && (
             <div className="flex gap-2">
               <Button
                 onClick={() => setIsSubscribed(!isSubscribed)}

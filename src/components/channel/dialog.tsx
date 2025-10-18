@@ -15,7 +15,7 @@ import { Button } from '../ui/button';
 import useAuth from '@/hooks/useAuth';
 
 const ChannelDialogue = ({ isopen, onclose, channeldata, mode }: any) => {
-  const { loading, user, createChannel } = useAuth();
+  const { loading, user, createOrUpdate } = useAuth();
   const router = useRouter();
   const [formData, setFormData] = React.useState<any>({
     name: '',
@@ -23,7 +23,7 @@ const ChannelDialogue = ({ isopen, onclose, channeldata, mode }: any) => {
   });
 
   const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev: any) => ({ ...prev, [name]: value }));
@@ -31,8 +31,8 @@ const ChannelDialogue = ({ isopen, onclose, channeldata, mode }: any) => {
 
   const handlesubmit = async (e: FormEvent) => {
     e.preventDefault();
-    await createChannel(formData).then(() => {
-      router.push(`/channel/${user._id}`);
+    await createOrUpdate(formData).then((channel:any) => {
+      router.push(`/channel/${channel._id}`);
       onclose();
     });
   };
@@ -46,7 +46,7 @@ const ChannelDialogue = ({ isopen, onclose, channeldata, mode }: any) => {
     } else {
       setFormData({
         name: user?.name || formData.name,
-        description: formData.description,
+        description: formData.description || 'asdfasfa',
       });
     }
   }, [channeldata, user]);

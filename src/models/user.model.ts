@@ -9,13 +9,8 @@ const userSchema = new mongoose.Schema<UserDocument>(
       unique: true,
       lowercase: true,
     },
-    channel: {
-      name: { type: String },
-      description: { type: String },
-    },
-    image: {
-      type: String,
-    },
+    channel: { type: mongoose.Schema.Types.ObjectId, ref: 'Channel' },
+    image: { type: String },
   },
   { timestamps: true },
 );

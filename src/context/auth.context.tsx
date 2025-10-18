@@ -1,14 +1,21 @@
 import { auth, provider } from '@/lib';
 import { loginUser, updateUser } from '@/services/auth.service';
+import { createOrUpdateChannel } from '@/services/channel.service';
 import { onAuthStateChanged, signInWithPopup, signOut } from 'firebase/auth';
 import React from 'react';
 import { toast } from 'sonner';
+
+// createOrUpdate: (payload: {
+//     name: string;
+//     description?: string;
+//     image?: string;
+//   }) => Promise<void>;
 
 export const AuthContext = React.createContext<AuthContextType>({
   user: null,
   loading: false,
   logIn: () => {},
-  createChannel: async () => {},
+  createOrUpdate: async () => {},
   logOut: async () => {},
   googleSignIn: async () => {},
 });
@@ -36,7 +43,7 @@ export const AuthProvider: React.FC<ProviderProps> = ({ children }) => {
         image: user.photoURL || '/guest.jpg',
       });
       setUser(data.user);
-      toast.success(data.message)
+      toast.success(data.message);
     } catch (err) {
       console.error(err); //todo remove
       toast.error('Something went wrong while signin!');
@@ -50,14 +57,20 @@ export const AuthProvider: React.FC<ProviderProps> = ({ children }) => {
     await signOut(auth);
   };
 
-  const createChannel = async (data: ChannelData) => {
+  const createOrUpdate = async (payload: {
+    name: string;
+    description?: string;
+    image?: string;
+  }) => {
     setLoading(true);
     try {
-      const { user, message } = await updateUser(data);
+      const { message, user, channel } = await createOrUpdateChannel(payload);
       setUser(user);
-      return toast.success(message);
-    } catch (err) {
-      return toast.error(String(err));
+      console.log(user);
+      toast.success(message);
+      return channel;
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to create/update channel');
     } finally {
       setLoading(false);
     }
@@ -97,7 +110,7 @@ export const AuthProvider: React.FC<ProviderProps> = ({ children }) => {
     <AuthContext.Provider
       value={{
         user,
-        createChannel,
+        createOrUpdate,
         loading,
         logIn,
         logOut,
