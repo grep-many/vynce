@@ -91,6 +91,8 @@ export const getVideo = async (req: NextApiRequest, res: NextApiResponse) => {
         video: {
           ...video,
           filepath: `${host}/api/video/stream/${video._id}`, // placeholder for future streaming
+          likes: v.likes.length,
+          dislikes: v.dislikes.length,
         },
       });
     }
@@ -121,6 +123,8 @@ export const getVideo = async (req: NextApiRequest, res: NextApiResponse) => {
     const videosWithStream = videos.map((v: any) => ({
       ...v,
       filepath: `${host}/api/video/stream/${v._id}`,
+      likes: v.likes.length,
+      dislikes: v.dislikes.length
     }));
 
     return res.status(200).json({

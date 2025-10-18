@@ -1,12 +1,14 @@
-import React, { ReactNode, createContext, useState, useEffect } from 'react';
+import React from 'react';
 import {
   getVideos,
   getVideo,
   uploadVideo,
   UploadVideoData,
+  likeVideo
 } from '@/services/video.service';
 import { Video } from '@/types/video';
 import { toast } from 'sonner';
+import { useRouter } from 'next/router';
 
 interface VideoContextType {
   videos: Video[];
@@ -21,17 +23,14 @@ interface VideoContextType {
   setUploadProgress: React.Dispatch<React.SetStateAction<number>>;
   fetchVideos: (page?: number) => Promise<void>;
   fetchVideo: (id: string) => Promise<void>;
+  likeVideo: (id: string,like:boolean) => Promise<void>;
   upload: (
     data: UploadVideoData,
     onUploadProgress: (percent: number) => void,
   ) => Promise<void>;
 }
 
-interface ProviderProps {
-  children: ReactNode;
-}
-
-export const VideoContext = createContext<VideoContextType>({
+export const VideoContext = React.createContext<VideoContextType>({
   videos: [],
   total: 0,
   page: 1,
@@ -44,18 +43,20 @@ export const VideoContext = createContext<VideoContextType>({
   setUploadProgress: () => {},
   fetchVideos: async () => {},
   fetchVideo: async () => {},
-  upload: async () => {},
+  upload: async () => { },
+  likeVideo: async () => { }
 });
 
 export const VideoProvider: React.FC<ProviderProps> = ({ children }) => {
-  const [videos, setVideos] = useState<Video[]>([]);
-  const [page, setPage] = useState(1);
-  const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const [videos, setVideos] = React.useState<Video[]>([]);
+  const [page, setPage] = React.useState(1);
+  const [total, setTotal] = React.useState(0);
+  const [loading, setLoading] = React.useState(false);
+  const router = useRouter();
 
-  const [uploadComplete, setUploadComplete] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadComplete, setUploadComplete] = React.useState(false);
+  const [isUploading, setIsUploading] = React.useState(false);
+  const [uploadProgress, setUploadProgress] = React.useState(0);
 
   // --- Helper: merge new videos on top, remove duplicates, keep max 10 ---
   const mergeVideos = (
@@ -84,10 +85,19 @@ export const VideoProvider: React.FC<ProviderProps> = ({ children }) => {
       setTotal(res.total || 0);
       setPage(newPage);
     } catch (err: any) {
-      console.error('Error fetching videos:', err);
       toast.error(err.message || 'Failed to fetch videos');
+      router.push('/');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const reactVideo = async (id: string, like: boolean) => {
+    try {
+      const { message } = likeVideo(id, like);
+      toast.success(message)
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to fetch videos');
     }
   };
 
@@ -131,7 +141,7 @@ export const VideoProvider: React.FC<ProviderProps> = ({ children }) => {
   };
 
   // Initial load
-  useEffect(() => {
+  React.useEffect(() => {
     fetchVideos(1);
   }, []);
 
@@ -151,6 +161,7 @@ export const VideoProvider: React.FC<ProviderProps> = ({ children }) => {
         fetchVideos,
         fetchVideo,
         upload,
+        likeVideo
       }}
     >
       {children}

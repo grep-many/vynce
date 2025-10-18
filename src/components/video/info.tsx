@@ -11,49 +11,43 @@ import {
   ThumbsUp,
 } from 'lucide-react';
 import useAuth from '@/hooks/useAuth';
+import useVideo from '@/hooks/useVideo';
+import { toast } from 'sonner';
 
 const VideoInfo = ({ video }: any) => {
-  //TODO: refactor state management looks messy this way use object
-  const [like, setLikes] = React.useState(video.like | 0);
-  const [dislike, setDislikes] = React.useState(video.dislike | 0);
+  const { user } = useAuth();
+  const { likeVideo } = useVideo();
+
+  const [likes, setLikes] = React.useState(video.likes || 0);
+  const [dislikes, setDislikes] = React.useState(video.dislikes || 0);
   const [isLiked, setIsLiked] = React.useState(false);
   const [isDisliked, setIsDisliked] = React.useState(false);
   const [showFullDescription, setShowFullDescription] = React.useState(false);
-  const {user} = useAuth()
 
-  //TODO: remove the below the static testing user object
-
+  // Initialize state
   React.useEffect(() => {
-    setLikes(video.like | 0);
-    setDislikes(video.dislike | 0);
-  }, [video]);
-
-  const handleLike = () => {
-    if (!user) return;
-    if (isLiked) {
-      setLikes((prev: any) => prev - 1);
-      setIsLiked(false);
-    } else {
-      setLikes((prev: any) => prev + 1);
-      setIsLiked(true);
-      if (isDisliked) {
-        setDislikes((prev: any) => prev - 1);
-        setIsDisliked(false);
-      }
+    setLikes(video.likes || 0);
+    setDislikes(video.dislikes || 0);
+    if (user) {
+      setIsLiked(video.likesArray?.includes(user._id) || false);
+      setIsDisliked(video.dislikesArray?.includes(user._id) || false);
     }
-  };
-  const handleDislike = () => {
-    if (!user) return;
-    if (isDisliked) {
-      setDislikes((prev: any) => prev - 1);
-      setIsDisliked(false);
-    } else {
-      setDislikes((prev: any) => prev + 1);
-      setIsDisliked(true);
-      if (isLiked) {
-        setLikes((prev: any) => prev - 1);
-        setIsLiked(false);
-      }
+  }, [video, user]);
+
+  const handleReaction = async (like: boolean) => {
+    if (!user) {
+      toast.warning("Signin to like the video!")
+    };
+
+    try {
+      const data = await likeVideo(video._id, like); // call backend
+      setLikes(data.likes);
+      setDislikes(data.dislikes);
+
+      setIsLiked(like ? !isLiked : false);
+      setIsDisliked(!like ? !isDisliked : false);
+    } catch (err: any) {
+      console.error(err);
     }
   };
 
@@ -71,60 +65,63 @@ const VideoInfo = ({ video }: any) => {
           </div>
           <Button className="ml-4">Subscribe</Button>
         </div>
+
+        {/* Like / Dislike */}
         <div className="flex items-center gap-2">
-          <div className="flex items-center  rounded-full">
+          <div className="flex items-center rounded-full">
             <Button
               variant="ghost"
               size="sm"
               className="rounded-l-full"
-              onClick={handleLike}
+              onClick={() => handleReaction(true)}
             >
               <ThumbsUp
                 className={`w-5 h-5 mr-2 ${
                   isLiked ? 'fill-accent-foreground' : ''
                 }`}
               />
-              {like.toLocaleString()}
+              {likes.toLocaleString()}
             </Button>
-            <div className="w-px h-6 " />
+
+            <div className="w-px h-6" />
+
             <Button
               variant="ghost"
               size="sm"
               className="rounded-r-full"
-              onClick={handleDislike}
+              onClick={() => handleReaction(false)}
             >
               <ThumbsDown
                 className={`w-5 h-5 mr-2 ${
                   isDisliked ? 'fill-accent-foreground' : ''
                 }`}
               />
-              {dislike.toLocaleString()}
+              {dislikes.toLocaleString()}
             </Button>
           </div>
 
-          <Button variant="ghost" size="sm" className=" rounded-full">
+          <Button variant="ghost" size="sm" className="rounded-full">
             <Share className="w-5 h-5 mr-2" />
             Share
           </Button>
-          <Button variant="ghost" size="sm" className=" rounded-full">
+          <Button variant="ghost" size="sm" className="rounded-full">
             <Download className="w-5 h-5 mr-2" />
             Download
           </Button>
-          <Button variant="ghost" size="icon" className=" rounded-full">
+          <Button variant="ghost" size="icon" className="rounded-full">
             <MoreHorizontal className="w-5 h-5" />
           </Button>
         </div>
       </div>
-      <div className=" rounded-lg p-4">
+
+      {/* Description */}
+      <div className="rounded-lg p-4">
         <div className="flex gap-4 text-sm font-medium mb-2">
           <span>{formatViews(video.views)} views</span>
           <span>{uploadTimeCal(video.createdAt)}</span>
         </div>
         <div className={`text-sm ${showFullDescription ? '' : 'line-clamp-3'}`}>
-          <p>
-            Sample video description. This would contain the actual video
-            description from the database.
-          </p>
+          <p>{video.description}</p>
         </div>
         <Button
           variant="ghost"
