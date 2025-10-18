@@ -4,10 +4,10 @@ import React from 'react';
 import { Clock, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import VideoCard from './card';
+import { Video } from '@/types/video';
 
 type ContentProps = {
-  title: string;
-  videos: any[];
+  videos: Video[];
   user: any; // required
   type: 'history' | 'liked' | 'watchlater';
   emptyMessage?: string;
@@ -15,13 +15,13 @@ type ContentProps = {
 };
 
 const Content: React.FC<ContentProps> = ({
-  title,
   videos,
   user,
   type,
   emptyMessage = 'No videos yet',
   onRemove,
 }) => {
+
   if (!user) {
     return (
       <div className="text-center py-12">
@@ -64,15 +64,13 @@ const Content: React.FC<ContentProps> = ({
       </div>}
 
       <div className="space-y-4">
-        {videos.map((item) => (
+        {videos.map((video,i) => (
           <VideoCard
-            key={item._id}
+            key={i}
             type="content" // VideoCard uses 'history' type for hover video preview
             video={{
-              ...item.video,
-              watchedon: type === 'history' ? item.watchedon : undefined,
-              likedOn: type === 'liked' ? item.likedOn : undefined,
-              addedOn: type === 'watchlater' ? item.addedOn : undefined,
+              ...video,
+              watchedon: type === 'history' ? video.watchedon : undefined,
             }}
             onRemove={onRemove}
           />

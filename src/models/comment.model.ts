@@ -1,29 +1,35 @@
 import mongoose, { Schema, model, Document } from 'mongoose';
 
+// Interface for a comment document
 export interface IComment extends Document {
-  videoId: string;
-  userid: string;
+  videoId: mongoose.Types.ObjectId | string;
+  userid: mongoose.Types.ObjectId | string;
   commentbody: string;
   userName: string;
   userEmail: string;
   userImage?: string;
   commentedOn: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-const CommentSchema: Schema<IComment> = new Schema(
+// Schema definition
+const CommentSchema = new Schema<IComment>(
   {
     videoId: { type: Schema.Types.ObjectId, ref: 'Video', required: true },
     userid: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     commentbody: { type: String, required: true },
     userName: { type: String, required: true },
     userEmail: { type: String, required: true },
-    userImage: { type: String },
+    userImage: { type: String, default: '' },
     commentedOn: { type: Date, default: Date.now },
   },
-  { timestamps: true },
+  {
+    timestamps: true, // automatically adds createdAt and updatedAt
+  },
 );
 
-// Prevent model recompilation (Next.js hot reload)
+// Avoid recompiling model on Next.js hot reload
 const Comment =
   mongoose.models.Comment || model<IComment>('Comment', CommentSchema);
 

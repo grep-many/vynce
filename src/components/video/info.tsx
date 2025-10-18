@@ -11,12 +11,12 @@ import {
   ThumbsUp,
 } from 'lucide-react';
 import useAuth from '@/hooks/useAuth';
-import useVideo from '@/hooks/useVideo';
 import { toast } from 'sonner';
+import useLike from '@/hooks/useLike';
 
 const VideoInfo = ({ video }: any) => {
   const { user } = useAuth();
-  const { likeVideo } = useVideo();
+  const { reactVideo } = useLike();
 
   const [likes, setLikes] = React.useState(video.likes || 0);
   const [dislikes, setDislikes] = React.useState(video.dislikes || 0);
@@ -36,13 +36,13 @@ const VideoInfo = ({ video }: any) => {
 
   const handleReaction = async (like: boolean) => {
     if (!user) {
-      toast.warning("Signin to like the video!")
-    };
+      toast.warning('Signin to like the video!');
+    }
 
     try {
-      const data = await likeVideo(video._id, like); // call backend
-      setLikes(data.likes);
-      setDislikes(data.dislikes);
+      const { likes, dislikes } = await reactVideo(video._id, like); // call backend
+      setLikes(likes);
+      setDislikes(dislikes);
 
       setIsLiked(like ? !isLiked : false);
       setIsDisliked(!like ? !isDisliked : false);
