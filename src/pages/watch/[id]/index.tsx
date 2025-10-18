@@ -2,6 +2,7 @@ import VideoComments from '@/components/video/comments';
 import VideoInfo from '@/components/video/info';
 import VideoPlayer from '@/components/video/player';
 import RelatedVideos from '@/components/video/related';
+import useAuth from '@/hooks/useAuth';
 import useHistory from '@/hooks/useHistory';
 import useVideo from '@/hooks/useVideo';
 import { useRouter } from 'next/router';
@@ -10,6 +11,7 @@ import React from 'react';
 const Watch = () => {
   const router = useRouter();
   const { id } = router.query;
+  const {user} =useAuth()
   const { videos, fetchVideo, loading } = useVideo();
   const { addVideoToHistory } = useHistory();
 
@@ -25,7 +27,7 @@ const Watch = () => {
     if (stringId && !video) {
       fetchVideo(stringId);
     }
-    addVideoToHistory(id)
+    if(user)addVideoToHistory(id)
   }, [id]);
 
   if (loading && !video) {

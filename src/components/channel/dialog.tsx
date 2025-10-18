@@ -46,7 +46,7 @@ const ChannelDialogue = ({ isopen, onclose, channeldata, mode }: any) => {
     } else {
       setFormData({
         name: user?.name || formData.name,
-        description: formData.description || 'asdfasfa',
+        description: formData.description || '',
       });
     }
   }, [channeldata, user]);

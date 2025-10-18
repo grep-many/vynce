@@ -65,7 +65,7 @@ const VideoUploader = ({ id, name }: any) => {
     // data.append('description', formData.description);
     await upload({...formData,file:videoFile},
       (percent:number) => setUploadProgress(percent),
-    );
+    ).then(()=>resetForm())
   };
 
   return (

@@ -1,8 +1,6 @@
 import React from 'react';
 import VideoCard from './card';
-import { getVideos } from '@/services/video.service';
 import { Video } from '@/types/video';
-import { toast } from 'sonner';
 import { Button } from '../ui/button';
 
 interface Prop {

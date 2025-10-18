@@ -5,12 +5,14 @@ import React from 'react';
 import useHistory from '@/hooks/useHistory';
 import Content from '@/components/video/content';
 import { Button } from '@/components/ui/button';
+import useAuth from '@/hooks/useAuth';
 
 const HistoryPage = () => {
   const { videos, fetchHistory, removeVideo, clearAll, loading } = useHistory();
+  const { user } = useAuth();
 
   React.useEffect(() => {
-    fetchHistory();
+    if (user) fetchHistory();
   }, []);
 
   return (

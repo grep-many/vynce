@@ -1,48 +1,44 @@
 import mongoose from 'mongoose';
 
-const videoSchema = new mongoose.Schema<VideoDocument>(
+const videoSchema = new mongoose.Schema(
   {
     title: {
       type: String,
-      required: [true, 'title is required'],
+      required: [true, 'Title is required'],
     },
     description: {
       type: String,
-      required: [true, 'description is required'],
+      required: [true, 'Description is required'],
     },
     filename: {
       type: String,
-      required: [true, 'filename is required'],
+      required: [true, 'Filename is required'],
     },
     filetype: {
       type: String,
-      required: [true, 'filetype is required'],
+      required: [true, 'Filetype is required'],
     },
     filepath: {
       type: String,
-      required: [true, 'filepath is required'],
+      required: [true, 'Filepath is required'],
     },
     filesize: {
       type: String,
-      required: [true, 'filesize is required'],
+      required: [true, 'Filesize is required'],
     },
     channel: {
-      type: String,
-      required: [true, 'channel is required'],
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Channel',
+      required: true,
     },
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     dislikes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     watchLater: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     views: { type: Number, default: 0 },
-    uploader: {
-      type: String,
-      required: [true, 'Uploader is required'],
-    },
   },
   { timestamps: true },
 );
 
-const Video: VideoModel =
-  mongoose.models.Video || mongoose.model<VideoDocument>('Video', videoSchema);
+const Video = mongoose.models.Video || mongoose.model('Video', videoSchema);
 
 export default Video;

@@ -2,6 +2,8 @@ import { NextApiResponse } from 'next';
 import { APIReq } from './user.controller';
 import Channel from '@/models/channel.model';
 import User from '@/models/user.model';
+import Video from '@/models/video.model';
+import { getBaseUrl } from '@/lib';
 
 // Create or update a channel
 export const createOrUpdateChannel = async (
@@ -47,7 +49,7 @@ export const createOrUpdateChannel = async (
     return res.status(channel ? 200 : 201).json({
       message: channel ? 'Channel updated' : 'Channel created',
       channel,
-      user:userWithChannel,
+      user: userWithChannel,
     });
   } catch (err: any) {
     console.error('Channel create/update error:', err);
@@ -99,6 +101,7 @@ export const getSubscribedChannels = async (
   req: APIReq,
   res: NextApiResponse,
 ) => {
+  
   const userId = req.user?._id;
   if (!userId) return res.status(401).json({ message: 'Unauthorized' });
 
@@ -106,7 +109,6 @@ export const getSubscribedChannels = async (
     const channels = await Channel.find({ subscribers: userId }).lean();
     return res.status(200).json({
       message: 'Fetched subscriptions',
-      total: channels.length,
       channels,
     });
   } catch (err: any) {
@@ -121,18 +123,45 @@ export const getSubscribedChannels = async (
 export const getChannelById = async (req: APIReq, res: NextApiResponse) => {
   const { id } = req.query;
 
-  if (!id)
-    return res.status(400).json({ message: 'Channel ID is required' });
+  if (!id) return res.status(400).json({ message: 'Channel ID is required' });
 
   try {
+    const host = getBaseUrl(req); // get base URL for streaming
+
+    // 1️⃣ Fetch channel
     const channel = await Channel.findById(id)
+      .populate('owner', 'name email image')
+      .lean();
     if (!channel) return res.status(404).json({ message: 'Channel not found' });
 
-    return res.status(200).json({ message: 'Channel fetched', channel });
+    // 2️⃣ Fetch channel videos
+    const videosRaw = await Video.find({ channel: id })
+      .populate('channel', 'name image')
+      .sort({ createdAt: -1 })
+      .lean();
+
+    // 3️⃣ Format videos like getVideo API
+    const videos = videosRaw.map((v) => ({
+      ...v,
+      filepath: `${host}/api/video/stream/${v._id}`,
+      likes: v.likes.length,
+      dislikes: v.dislikes.length,
+    }));
+
+    // 4️⃣ Return channel + videos
+    return res.status(200).json({
+      message: 'Channel fetched successfully',
+      channel: {
+        ...channel,
+        subscribers: channel.subscribers.length,
+        videos,
+      },
+    });
   } catch (err: any) {
     console.error('Get channel error:', err);
-    return res
-      .status(500)
-      .json({ message: 'Internal server error', error: err.message });
+    return res.status(500).json({
+      message: 'Internal server error',
+      error: err.message,
+    });
   }
 };

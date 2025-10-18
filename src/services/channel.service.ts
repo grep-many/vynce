@@ -13,8 +13,10 @@ export const createOrUpdateChannel = async (
   return data;
 };
 
-export const toggleSubscription = async (id: string) => {
-  const { data } = await axiosInstance.put(`/channel/${id}`);
+export const toggleSubscription = async (channelId: string) => {
+  const { data } = await axiosInstance.put("/channel", {
+    channelId
+  });
   return data;
 };
 

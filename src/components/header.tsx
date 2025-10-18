@@ -93,13 +93,10 @@ const Header = () => {
           <Mic className="w-5 h-5" />
         </Button>
       </form>
-
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 pr-0 md:pr-10">
+        {!user && <ModeToggle />}
         {user ? (
           <>
-            <Button variant="secondary">
-              <VideoIcon />
-            </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -140,7 +137,7 @@ const Header = () => {
                 <DropdownMenuSeparator />
                 {user?.channel ? (
                   <DropdownMenuItem asChild>
-                    <Link href={`/channel/${user?._id}`}>
+                    <Link href={`/channel/${user.channel._id}`}>
                       <TvMinimalPlay className="w-4 h-4" />
                       My channel
                     </Link>

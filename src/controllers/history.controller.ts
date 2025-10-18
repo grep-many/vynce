@@ -13,7 +13,6 @@ export const addToHistory = async (req: APIReq, res: NextApiResponse) => {
     if (!videoId) return res.status(400).json({ message: 'Video ID required' });
 
     const video = await Video.findById(videoId);
-    console.log(video);
     
     if (!video) return res.status(404).json({ message: 'Video not found' });
 
