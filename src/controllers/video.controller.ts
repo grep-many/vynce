@@ -91,8 +91,8 @@ export const getVideo = async (req: NextApiRequest, res: NextApiResponse) => {
         video: {
           ...video,
           filepath: `${host}/api/video/stream/${video._id}`, // placeholder for future streaming
-          likes: v.likes.length,
-          dislikes: v.dislikes.length,
+          likes: video.likes.length,
+          dislikes: video.dislikes.length,
         },
       });
     }

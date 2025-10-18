@@ -3,14 +3,17 @@ import React from 'react';
 import { AuthProvider } from './auth.context';
 import { Toaster } from '@/components/ui/sonner';
 import { VideoProvider } from './video.context';
+import { CommentProvider } from './comment.context';
 
 const AppProvider = ({ children }: any) => {
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <AuthProvider>
         <VideoProvider>
-          <Toaster />
-          {children}
+          <CommentProvider>
+            <Toaster />
+            {children}
+          </CommentProvider>
         </VideoProvider>
       </AuthProvider>
     </ThemeProvider>

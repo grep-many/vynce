@@ -23,7 +23,7 @@ const Watch = () => {
     if (stringId && !video) {
       fetchVideo(stringId);
     }
-  }, [stringId, video, fetchVideo]);
+  }, [id]);
 
   if (loading && !video) {
     return (
@@ -48,7 +48,7 @@ const Watch = () => {
         <div className="lg:col-span-2 space-y-4">
           <VideoPlayer video={video} />
           <VideoInfo video={video} />
-          <VideoComments videoId={video._id} />
+          <VideoComments videoId={id}  />
         </div>
 
         {/* Related videos sidebar */}
