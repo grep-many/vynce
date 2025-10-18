@@ -1,22 +1,22 @@
 import React from 'react';
 import { Avatar, AvatarFallback } from '../ui/avatar';
-import { extractInitials, formatViews, uploadTimeCal } from '@/lib';
 import { Button } from '../ui/button';
 import {
-  Clock,
-  Download,
-  MoreHorizontal,
-  Share,
-  ThumbsDown,
   ThumbsUp,
+  ThumbsDown,
+  Share,
+  Clock,
 } from 'lucide-react';
 import useAuth from '@/hooks/useAuth';
-import { toast } from 'sonner';
 import useLike from '@/hooks/useLike';
+import { toast } from 'sonner';
+import { formatViews, uploadTimeCal, extractInitials } from '@/lib';
+import useWatch from '@/hooks/useWatch';
 
 const VideoInfo = ({ video }: any) => {
   const { user } = useAuth();
   const { reactVideo } = useLike();
+  const { toggleWatchLater } = useWatch();
 
   const [likes, setLikes] = React.useState(video.likes || 0);
   const [dislikes, setDislikes] = React.useState(video.dislikes || 0);
@@ -24,7 +24,6 @@ const VideoInfo = ({ video }: any) => {
   const [isDisliked, setIsDisliked] = React.useState(false);
   const [showFullDescription, setShowFullDescription] = React.useState(false);
 
-  // Initialize state
   React.useEffect(() => {
     setLikes(video.likes || 0);
     setDislikes(video.dislikes || 0);
@@ -37,24 +36,47 @@ const VideoInfo = ({ video }: any) => {
   const handleReaction = async (like: boolean) => {
     if (!user) {
       toast.warning('Signin to like the video!');
+      return;
     }
-
-    try {
-      const { likes, dislikes } = await reactVideo(video._id, like); // call backend
-      setLikes(likes);
-      setDislikes(dislikes);
-
-      setIsLiked(like ? !isLiked : false);
-      setIsDisliked(!like ? !isDisliked : false);
-    } catch (err: any) {
-      console.error(err);
-    }
+    const { likes, dislikes } = await reactVideo(video._id, like);
+    setLikes(likes);
+    setDislikes(dislikes);
+    setIsLiked(like ? !isLiked : false);
+    setIsDisliked(!like ? !isDisliked : false);
   };
+
+  const handleWatchClick = async () => {
+    await toggleWatchLater(video._id);
+  };
+
+  // Truncated description logic
+  const truncatedDescription =
+    video.description.length > 150
+      ? video.description.slice(0, 150) + '...'
+      : video.description;
 
   return (
     <div className="space-y-4">
+      {/* Title */}
       <h1 className="text-xl font-semibold">{video.title}</h1>
-      <div className="flex items-center justify-between">
+
+      {/* Description */}
+      <div className="text-sm text-gray-700">
+        <p>{showFullDescription ? video.description : truncatedDescription}</p>
+        {video.description.length > 150 && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="mt-1 p-0 h-auto font-medium"
+            onClick={() => setShowFullDescription(!showFullDescription)}
+          >
+            {showFullDescription ? 'Show less' : 'Show more'}
+          </Button>
+        )}
+      </div>
+
+      {/* Channel info */}
+      <div className="flex items-center justify-between py-2">
         <div className="flex items-center gap-4">
           <Avatar className="w-10 h-10">
             <AvatarFallback>{extractInitials(video.channel)}</AvatarFallback>
@@ -63,74 +85,53 @@ const VideoInfo = ({ video }: any) => {
             <h3 className="font-medium">{video.channel}</h3>
             <p className="text-sm text-gray-600">1.2M subscribers</p>
           </div>
-          <Button className="ml-4">Subscribe</Button>
         </div>
-
-        {/* Like / Dislike */}
-        <div className="flex items-center gap-2">
-          <div className="flex items-center rounded-full">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="rounded-l-full"
-              onClick={() => handleReaction(true)}
-            >
-              <ThumbsUp
-                className={`w-5 h-5 mr-2 ${
-                  isLiked ? 'fill-accent-foreground' : ''
-                }`}
-              />
-              {likes.toLocaleString()}
-            </Button>
-
-            <div className="w-px h-6" />
-
-            <Button
-              variant="ghost"
-              size="sm"
-              className="rounded-r-full"
-              onClick={() => handleReaction(false)}
-            >
-              <ThumbsDown
-                className={`w-5 h-5 mr-2 ${
-                  isDisliked ? 'fill-accent-foreground' : ''
-                }`}
-              />
-              {dislikes.toLocaleString()}
-            </Button>
-          </div>
-
-          <Button variant="ghost" size="sm" className="rounded-full">
-            <Share className="w-5 h-5 mr-2" />
-            Share
-          </Button>
-          <Button variant="ghost" size="sm" className="rounded-full">
-            <Download className="w-5 h-5 mr-2" />
-            Download
-          </Button>
-          <Button variant="ghost" size="icon" className="rounded-full">
-            <MoreHorizontal className="w-5 h-5" />
-          </Button>
-        </div>
+        <Button variant="destructive">Subscribe</Button>
       </div>
 
-      {/* Description */}
-      <div className="rounded-lg p-4">
-        <div className="flex gap-4 text-sm font-medium mb-2">
-          <span>{formatViews(video.views)} views</span>
-          <span>{uploadTimeCal(video.createdAt)}</span>
-        </div>
-        <div className={`text-sm ${showFullDescription ? '' : 'line-clamp-3'}`}>
-          <p>{video.description}</p>
-        </div>
+      {/* Actions */}
+      <div className="flex flex-wrap gap-2">
         <Button
           variant="ghost"
           size="sm"
-          className="mt-2 p-0 h-auto font-medium"
-          onClick={() => setShowFullDescription(!showFullDescription)}
+          className="flex items-center gap-1"
+          onClick={() => handleReaction(true)}
         >
-          {showFullDescription ? 'Show less' : 'Show more'}
+          <ThumbsUp
+            className={`w-5 h-5 ${isLiked ? 'fill-accent-foreground' : ''}`}
+          />
+          {likes.toLocaleString()}
         </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="flex items-center gap-1"
+          onClick={() => handleReaction(false)}
+        >
+          <ThumbsDown
+            className={`w-5 h-5 ${isDisliked ? 'fill-accent-foreground' : ''}`}
+          />
+          {dislikes.toLocaleString()}
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="flex items-center gap-1"
+          onClick={() => handleWatchClick()}
+        >
+          <Clock className="w-5 h-5" />
+          Watch Later
+        </Button>
+        <Button variant="ghost" size="sm" className="flex items-center gap-1">
+          <Share className="w-5 h-5" />
+          Share
+        </Button>
+      </div>
+
+      {/* Views / Upload date */}
+      <div className="text-sm text-gray-600 flex gap-4">
+        <span>{formatViews(video.views)} views</span>
+        <span>{uploadTimeCal(video.createdAt)}</span>
       </div>
     </div>
   );
