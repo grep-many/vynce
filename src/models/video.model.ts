@@ -44,7 +44,7 @@ const videoSchema = new mongoose.Schema<VideoDocument>(
     },
     uploader: {
       type: String,
-      required: [true, 'Title is required'],
+      required: [true, 'Uploader is required'],
     },
   },
   { timestamps: true },

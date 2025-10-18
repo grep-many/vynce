@@ -6,14 +6,6 @@ const nextConfig: NextConfig = {
   env: {
     BASE_URL: process.env.BASE_URL,
   },
-  async rewrites() {
-    return [
-      {
-        source: '/uploads/:path*',
-        destination: '/uploads/:path*',
-      },
-    ];
-  },
 };
 
 export default nextConfig;

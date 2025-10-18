@@ -6,7 +6,13 @@ import cookie from 'cookie';
 
 export const accessSecret = process.env.ACCESS_TOKEN_SECRET || 'secret';
 
-export const login = async (req: NextApiRequest, res: NextApiResponse) => {
+interface APIReq extends NextApiRequest{
+  user: {
+    _id:string
+  }
+}
+
+export const login = async (req: APIReq, res: NextApiResponse) => {
   const { name, email, image } = req.body;
 
   if (!name || !email || !image) {
@@ -50,11 +56,11 @@ export const login = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 };
 
-export const update = async (req: NextApiRequest, res: NextApiResponse) => {
+export const update = async (req: APIReq, res: NextApiResponse) => {
   const { name, description } = req.body;
 
   if (!mongoose.Types.ObjectId.isValid(req.user._id)) {
-    return res.status(400).json({ message: 'Invalid user ID' });
+    return res.status(401).json({ message: 'Invalid User' });
   }
 
   try {

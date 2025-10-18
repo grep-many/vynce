@@ -47,8 +47,10 @@ export const VideoProvider: React.FC<ProviderProps> = ({ children }) => {
 
     try {
       // Pass the callback to the service
-      const {message} = await uploadVideo(data, onUploadProgress);
+      const {video,message} = await uploadVideo(data, onUploadProgress);
       setUploadComplete(true);
+      console.log(video);
+      
       toast.success(message)
     } catch (err: any) {
       toast.error(err)
