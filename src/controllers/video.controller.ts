@@ -30,7 +30,7 @@ export const uploadVideo = async (
       await uploadFile(req);
 
     // Validate file type
-    if (!file.mimetype || !file.mimetype.startsWith('video/')) {
+    if (!file.filetype || !file.filetype.startsWith('video/')) {
       return res.status(400).json({ message: 'Only video files are allowed' });
     }
 
@@ -42,17 +42,18 @@ export const uploadVideo = async (
     if (!channel) return res.status(404).json({ message: 'Channel not found' });
 
     // Normalize fields to plain strings
-    const title = normalizeField(fields.title) || file.originalFilename;
+    const title = normalizeField(fields.title) || file.filename;
     const description = normalizeField(fields.description) || '';
 
     // Save video info to MongoDB
     const video = new Video({
       title,
       description,
-      filename: file.originalFilename,
-      filetype: file.mimetype,
-      filepath: file.filepath,
-      filesize: `${file.size}`, // string to match schema
+      ...file,
+      // filename: file.filename,
+      // filetype: file.filetype,
+      // filepath: file.filepath,
+      // filesize: `${file.filesize}`, // string to match schema
       channel,
       uploader: req.user._id,
     });

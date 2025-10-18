@@ -2,10 +2,10 @@ import formidable, { File, Fields, Files } from 'formidable';
 import type { NextApiRequest } from 'next';
 
 export interface UploadedFile {
-  originalFilename: string;
+  filename: string;
   filepath: string;
-  mimetype: string;
-  size: number;
+  filetype: string;
+  filesize: number;
 }
 
 interface VideoFields {
@@ -20,7 +20,7 @@ const uploadFile = async (
 
   const form = formidable({
     multiples: false,
-    uploadDir:"uploads",
+    uploadDir:"./uploads",
     keepExtensions: true,
     filename: (originalName: string) => {
       // Use originalName provided by formidable
@@ -45,10 +45,10 @@ const uploadFile = async (
         return reject(new Error('Only .mp4 files allowed'));
 
       const uploadedFile: UploadedFile = {
-        originalFilename: file.originalFilename || '',
-        filepath: file.filepath,
-        mimetype: file.mimetype,
-        size: file.size,
+        filename: file.newFilename || '',
+        filepath: `uploads/${file.newFilename}`,
+        filetype: file.mimetype,
+        filesize: file.size,
       };
 
       resolve({ fields: parsedFields, file: uploadedFile });
