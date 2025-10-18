@@ -1,7 +1,6 @@
 import React from 'react';
 import { Button } from './ui/button';
 import {
-  Bell,
   Clock,
   History,
   LogOut,
@@ -34,26 +33,26 @@ import Image from 'next/image';
 const Header = () => {
   //TODO: remove the below the static testing user object
   const [query, setQuery] = React.useState('');
-  const [isDialogOpen, setIsDialogOpen] = React.useState(false)
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const router = useRouter();
   const { user, logOut, googleSignIn } = useAuth();
 
   const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     if (query.trim()) {
-      router.push(`/search/?q=${encodeURIComponent(query.trim())}`)
+      router.push(`/search/?q=${encodeURIComponent(query.trim())}`);
     }
-  }
+  };
 
-  const handlekeypress = (e: React.KeyboardEvent)=>{
-    if (e.key === "Enter") {
-      handleSearch(e as any)
+  const handlekeypress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch(e as any);
     }
-  }
+  };
 
   return (
-    <header className="flex items-center justify-between px-4 py-2 border-b bg-background/70 backdrop-blur-2xl z-10">
-      <div className="flex items-center gap-4">
+    <header className="flex items-center justify-between px-2 py-2 border-b bg-background/70 backdrop-blur-2xl z-10">
+      <div className="flex items-center gap-6">
         <Button variant="ghost" size="icon">
           <Menu className="w-6 h-6" />
         </Button>
@@ -100,9 +99,6 @@ const Header = () => {
           <>
             <Button variant="secondary">
               <VideoIcon />
-            </Button>
-            <Button variant="secondary">
-              <Bell />
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

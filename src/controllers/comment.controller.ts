@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import Comment, { IComment } from '@/models/comment.model';
-import mongoose from 'mongoose';
+import Comment from '@/models/comment.model';
 import User from '@/models/user.model';
 
 // Extend NextApiRequest to include authenticated user
