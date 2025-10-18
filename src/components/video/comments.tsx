@@ -1,107 +1,79 @@
-import React from 'react';
+// VideoComments.tsx
+import React, { useEffect, useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { extractInitials, uploadTimeCal } from '@/lib';
-import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
+import { Button } from '../ui/button';
+import { Edit, Trash2 } from 'lucide-react';
+import { extractInitials, uploadTimeCal } from '@/lib';
 import useAuth from '@/hooks/useAuth';
+import useComment from '@/hooks/useComment';
 
-interface Comment {
-  _id: string;
-  videoid: string;
-  userid: string;
-  commentbody: string;
-  usercommented: string;
-  commentedon: string;
+interface VideoCommentsProps {
+  videoId: string;
 }
 
-const VideoComments = ({ videoId }: any) => {
-  //TODO: remove the below the static testing user object and refactor states
-  const [comments, setComments] = React.useState<Comment[]>([]);
-  const [newComment, setNewComment] = React.useState('');
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const {user} = useAuth()
-  const [editingCommentId, setEditingCommentId] = React.useState<string | null>(
-    null,
-  );
-  const [editText, setEditText] = React.useState('');
+const VideoComments: React.FC<VideoCommentsProps> = ({ videoId }) => {
+  const { user } = useAuth();
+  const { comments, fetchComments, addComment, editComment, deleteComment } =
+    useComment();
 
-  const fetchedComments = [
-    {
-      _id: '1',
-      videoid: videoId,
-      userid: '1',
-      commentbody: 'Great video! Really enjoyed watching this.',
-      usercommented: 'John Doe',
-      commentedon: new Date(Date.now() - 3600000).toISOString(),
-    },
-    {
-      _id: '2',
-      videoid: videoId,
-      userid: '2',
-      commentbody: 'Thanks for sharing this amazing content!',
-      usercommented: 'Jane Smith',
-      commentedon: new Date(Date.now() - 7200000).toISOString(),
-    },
-  ];
+  const [newComment, setNewComment] = useState('');
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [editText, setEditText] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const loadComments = async () => {
-    setComments(fetchedComments);
-  };
+  // Fetch comments when videoId changes
+  useEffect(() => {
+    if (videoId) fetchComments(videoId);
+  }, [videoId]);
 
-  React.useEffect(() => {
-    loadComments();
-  }, []);
-
+  // --- Handlers ---
   const handleSubmitComment = async () => {
-    if (!user || !newComment.trim()) return;
+    if (!newComment.trim() || !user) return;
     setIsSubmitting(true);
-    setIsSubmitting(true);
-    const newCommentObj: Comment = {
-      _id: Date.now().toString(),
-      videoid: videoId,
-      userid: user._id,
-      commentbody: newComment,
-      usercommented: user.name || 'Anonymous',
-      commentedon: new Date().toISOString(),
-    };
-    setComments([newCommentObj, ...comments]);
-    setNewComment('');
-  };
-
-  const handleEdit = (comment: Comment) => {
-    setEditingCommentId(comment._id);
-    setEditText(comment.commentbody);
+    try {
+      await addComment({ videoId, commentbody: newComment });
+      setNewComment('');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleUpdateComment = async () => {
-    if (!editText.trim()) return;
-    setComments((prev) =>
-      prev.map((c) =>
-        c._id === editingCommentId ? { ...c, commentbody: editText } : c,
-      ),
-    );
+    if (!editText.trim() || !editingCommentId) return;
+    await editComment({ commentId: editingCommentId, commentbody: editText });
     setEditingCommentId(null);
     setEditText('');
   };
 
-  const handleDelete = async (id: string) => {
-    setComments((prev) => prev.filter((c) => c._id !== id));
+  const handleDeleteComment = async (commentId: string) => {
+    await deleteComment(commentId);
+  };
+
+  const handleEditClick = (commentId: string, text: string) => {
+    setEditingCommentId(commentId);
+    setEditText(text);
   };
 
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-semibold">{comments.length} Comments</h2>
+
+      {/* New Comment */}
       {user && (
         <div className="flex gap-4">
           <Avatar className="w-10 h-10">
-            <AvatarImage src={user.image || ''} />
-            <AvatarFallback>{extractInitials(user.name) || 'U'}</AvatarFallback>
+            {user.image ? (
+              <AvatarImage src={user.image} />
+            ) : (
+              <AvatarFallback>{extractInitials(user.name)}</AvatarFallback>
+            )}
           </Avatar>
           <div className="flex-1 space-y-2">
             <Textarea
               placeholder="Add a comment..."
               value={newComment}
-              onChange={(e: any) => setNewComment(e.target.value)}
+              onChange={(e) => setNewComment(e.target.value)}
               className="min-h-[80px] resize-none border-0 border-b-2 rounded-none focus-visible:ring-0"
             />
             <div className="flex gap-2 justify-end">
@@ -122,28 +94,39 @@ const VideoComments = ({ videoId }: any) => {
           </div>
         </div>
       )}
+
+      {/* Comments List */}
       <div className="space-y-4">
         {comments.length === 0 ? (
-          <p className="text-sm text-muted italic">
+          <p className="text-sm text-muted-foreground text-center italic">
             No comments yet. Be the first to comment!
           </p>
         ) : (
           comments.map((comment) => (
             <div key={comment._id} className="flex gap-4">
               <Avatar className="w-10 h-10">
-                {/* <AvatarImage src="/placeholder.svg?height=40&width=40" /> */}
-                <AvatarFallback>{extractInitials(comment.usercommented)}</AvatarFallback>
+                {comment.userImage ? (
+                  <AvatarImage src={comment.userImage} />
+                ) : (
+                  <AvatarFallback>
+                    {extractInitials(comment.userName)}
+                  </AvatarFallback>
+                )}
               </Avatar>
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
                   <span className="font-medium text-sm">
-                    {comment.usercommented}
+                    {comment.userName}
                   </span>
                   <span className="text-xs text-muted-foreground">
-                    {uploadTimeCal(comment.commentedon)}
+                    {comment.userEmail}
+                  </span>
+                  <span className="text-xs text-muted-foreground ml-auto">
+                    {uploadTimeCal(comment.commentedOn)}
                   </span>
                 </div>
 
+                {/* Editing Mode */}
                 {editingCommentId === comment._id ? (
                   <div className="space-y-2">
                     <Textarea
@@ -171,13 +154,23 @@ const VideoComments = ({ videoId }: any) => {
                 ) : (
                   <>
                     <p className="text-sm">{comment.commentbody}</p>
+
+                    {/* Edit/Delete Buttons */}
                     {comment.userid === user?._id && (
                       <div className="flex gap-2 mt-2 text-sm text-muted">
-                        <button onClick={() => handleEdit(comment)}>
-                          Edit
+                        <button
+                          className="hover:text-primary transition"
+                          onClick={() =>
+                            handleEditClick(comment._id, comment.commentbody)
+                          }
+                        >
+                          <Edit size={16} />
                         </button>
-                        <button onClick={() => handleDelete(comment._id)}>
-                          Delete
+                        <button
+                          className="hover:text-destructive transition"
+                          onClick={() => handleDeleteComment(comment._id)}
+                        >
+                          <Trash2 size={16} />
                         </button>
                       </div>
                     )}
