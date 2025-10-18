@@ -4,19 +4,30 @@ const VideoElement = ({ videoRef, video, isPlaying }: any) => {
   const [duration, setDuration] = useState<string>(''); // store formatted duration
 
   useEffect(() => {
-    if (!videoRef.current) return;
+    const videoEl = videoRef.current;
+    if (!videoEl) return;
 
-    const handleLoadedMetadata = () => {
-      const seconds = videoRef.current.duration;
+    const formatDuration = (seconds: number) => {
       const minutes = Math.floor(seconds / 60);
       const remainingSeconds = Math.floor(seconds % 60);
-      setDuration(
-        `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`,
-      );
+      return `${minutes}:${
+        remainingSeconds < 10 ? '0' : ''
+      }${remainingSeconds}`;
     };
 
-    const videoEl = videoRef.current;
+    const handleLoadedMetadata = () => {
+      if (videoEl.duration && !isNaN(videoEl.duration)) {
+        setDuration(formatDuration(videoEl.duration));
+      }
+    };
+
+    // Attach event listener
     videoEl.addEventListener('loadedmetadata', handleLoadedMetadata);
+
+    // Immediately check if metadata already loaded (cached video)
+    if (videoEl.readyState >= 1) {
+      handleLoadedMetadata();
+    }
 
     return () => {
       videoEl.removeEventListener('loadedmetadata', handleLoadedMetadata);
@@ -27,15 +38,15 @@ const VideoElement = ({ videoRef, video, isPlaying }: any) => {
     <div className="relative w-full aspect-video rounded-md overflow-hidden bg-black">
       <video
         ref={videoRef}
-        src={video.filepath}
+        src={video?.filepath}
         muted
         loop
         playsInline
         className="object-cover w-full h-full"
       />
-      {!isPlaying && (
+      {!isPlaying && duration && (
         <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-1 rounded">
-          {duration || '00:00'}
+          {duration}
         </div>
       )}
     </div>
