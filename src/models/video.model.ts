@@ -30,18 +30,9 @@ const videoSchema = new mongoose.Schema<VideoDocument>(
       type: String,
       required: [true, 'channel is required'],
     },
-    like: {
-      type: Number,
-      default: 0,
-    },
-    dislike: {
-      type: Number,
-      default: 0,
-    },
-    views: {
-      type: Number,
-      default: 0,
-    },
+    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    dislikes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    views: { type: Number, default: 0 },
     uploader: {
       type: String,
       required: [true, 'Uploader is required'],

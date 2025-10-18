@@ -14,7 +14,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     }
 
     // Fetch video metadata
-    const video = await Video.findById(videoId).lean();
+    const video = await Video.findById(videoId);
     if (!video) return res.status(404).json({ message: 'Video not found' });
 
     const videoPath = path.join('uploads', path.basename(video.filename));
@@ -44,6 +44,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const start = Number(range.replace(/\D/g, ''));
     const end = Math.min(start + CHUNK_SIZE, fileSize - 1);
     const contentLength = end - start + 1;
+
+    video.views += 1;
+    await video.save()
 
     res.writeHead(206, {
       'Content-Range': `bytes ${start}-${end}/${fileSize}`,
