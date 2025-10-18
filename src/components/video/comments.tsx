@@ -3,6 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { extractInitials, uploadTimeCal } from '@/lib';
 import { Button } from '../ui/button';
 import { Textarea } from '../ui/textarea';
+import useAuth from '@/hooks/useAuth';
 
 interface Comment {
   _id: string;
@@ -18,17 +19,11 @@ const VideoComments = ({ videoId }: any) => {
   const [comments, setComments] = React.useState<Comment[]>([]);
   const [newComment, setNewComment] = React.useState('');
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const {user} = useAuth()
   const [editingCommentId, setEditingCommentId] = React.useState<string | null>(
     null,
   );
   const [editText, setEditText] = React.useState('');
-
-  const user: any = {
-    id: '1',
-    name: 'John Doe',
-    email: 'john@example.com',
-    image: 'https://github.com/shadcn.png?height=32&width=32',
-  };
 
   const fetchedComments = [
     {
@@ -136,7 +131,7 @@ const VideoComments = ({ videoId }: any) => {
           comments.map((comment) => (
             <div key={comment._id} className="flex gap-4">
               <Avatar className="w-10 h-10">
-                <AvatarImage src="/placeholder.svg?height=40&width=40" />
+                {/* <AvatarImage src="/placeholder.svg?height=40&width=40" /> */}
                 <AvatarFallback>{extractInitials(comment.usercommented)}</AvatarFallback>
               </Avatar>
               <div className="flex-1">

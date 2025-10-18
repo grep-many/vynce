@@ -16,7 +16,7 @@ const Watch = () => {
       title: 'Amazing Nature Documentary',
       filename: 'nature-doc.mp4',
       filetype: 'video/mp4',
-      filepath: '/vdo.mp4',
+      filepath: '/api/video/68f333067401298b8ca99beb',
       filesize: '500MB',
       channel: 'Nature Channel',
       like: 1250,

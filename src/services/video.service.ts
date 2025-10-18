@@ -7,6 +7,13 @@ export interface UploadVideoData {
   file: File;
 }
 
+interface VideoFilters {
+  page?: number;
+  limit?: number;
+  search?: string;
+  channel?: string;
+}
+
 export const uploadVideo = async (
   data: UploadVideoData,
   onUploadProgress?: (percent: number) => void,
@@ -29,6 +36,35 @@ export const uploadVideo = async (
       },
     });
 
+    return res.data;
+  } catch (err: unknown) {
+    throw (
+      (err as AxiosError<{ message: string }>).response?.data?.message ||
+      (err instanceof Error ? err.message : String(err))
+    );
+  }
+};
+
+// GET /api/video?page=1&limit=5&search=nature&channel=Nature Channel
+export const getVideos = async ({
+  page = 1,
+  limit = 8,
+  search,
+  channel,
+}: VideoFilters) => {
+  try {
+    let query = '';
+
+    const params = new URLSearchParams();
+
+    params.append('page', page.toString());
+    params.append('limit', limit.toString());
+    if (search) params.append('search', search);
+    if (channel) params.append('channel', channel);
+
+    query = `?${params.toString()}`;
+
+    const res = await axiosInstance.get(`/video${query}`);
     return res.data;
   } catch (err: unknown) {
     throw (
