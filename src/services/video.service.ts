@@ -73,3 +73,15 @@ export const getVideos = async ({
     );
   }
 };
+
+export const getVideo = async (id:string) => {
+  try {
+    const res = await axiosInstance.get(`/video/${id}`)
+    return res.data
+  } catch (err: unknown) {
+    throw (
+      (err as AxiosError<{ message: string }>).response?.data?.message ||
+      (err instanceof Error ? err.message : String(err))
+    );
+  }
+};

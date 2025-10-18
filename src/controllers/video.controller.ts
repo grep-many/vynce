@@ -1,5 +1,3 @@
-import fs from 'fs';
-import path from 'path';
 import { NextApiRequest, NextApiResponse } from 'next';
 import uploadFile, { UploadedFile } from '@/lib/formidable';
 import Video from '@/models/video.model';
@@ -72,109 +70,71 @@ export const uploadVideo = async (
   }
 };
 
-export const getVideo = async (req: NextApiRequest, res: NextApiResponse) => {
-  const { id } = req.query; // id can be undefined or [id]
-  // If id is present → stream single video
-  if (id && (typeof id === 'string' || Array.isArray(id))) {
-    const videoId = Array.isArray(id) ? id[0] : id;
+// helper function
+const parseStringQuery = (
+  value: string | string[] | undefined,
+): string | undefined => (Array.isArray(value) ? value[0] : value);
 
-    try {
+export const getVideo = async (req: NextApiRequest, res: NextApiResponse) => {
+  try {
+    const { id, page, limit, channel, search } = req.query;
+    const host = getBaseUrl(req);
+
+    // --- 1️⃣ Single video by ID ---
+    if (id) {
+      const videoId = parseStringQuery(id);
       const video = await Video.findById(videoId).lean();
       if (!video) return res.status(404).json({ message: 'Video not found' });
 
-      const videoPath = path.join('uploads', path.basename(video.filename));
-      if (!fs.existsSync(videoPath))
-        return res
-          .status(404)
-          .json({ message: 'Video file not found on server' });
-
-      const stat = fs.statSync(videoPath);
-      const fileSize = stat.size;
-      const range = req.headers.range;
-
-      if (!range) {
-        res.writeHead(200, {
-          'Content-Length': fileSize,
-          'Content-Type': video.filetype || 'video/mp4',
-        });
-        fs.createReadStream(videoPath).pipe(res);
-        return;
-      }
-
-      const CHUNK_SIZE = 10 ** 6;
-      const start = Number(range.replace(/\D/g, ''));
-      const end = Math.min(start + CHUNK_SIZE, fileSize - 1);
-      const contentLength = end - start + 1;
-
-      res.writeHead(206, {
-        'Content-Range': `bytes ${start}-${end}/${fileSize}`,
-        'Accept-Ranges': 'bytes',
-        'Content-Length': contentLength,
-        'Content-Type': video.filetype || 'video/mp4',
+      return res.status(200).json({
+        message: 'Video found',
+        video: {
+          ...video,
+          filepath: `${host}/api/video/stream/${video._id}`, // placeholder for future streaming
+        },
       });
-
-      fs.createReadStream(videoPath, { start, end }).pipe(res);
-    } catch (err: any) {
-      console.error('Video stream error:', err);
-      res
-        .status(500)
-        .json({ message: 'Internal server error', error: err.message });
     }
 
-    return;
-  }
-
-  try {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 1;
-
+    // --- 2️⃣ List / filter videos ---
     let videosQuery = Video.find();
 
-    if (req.query.channel) {
-      videosQuery = videosQuery.where('channel').equals(req.query.channel);
-    }
+    if (channel)
+      videosQuery = videosQuery
+        .where('channel')
+        .equals(parseStringQuery(channel));
 
-    if (req.query.search) {
-      const regex = new RegExp(req.query.search as string, 'i');
+    if (search) {
+      const regex = new RegExp(parseStringQuery(search) || '', 'i');
       videosQuery = videosQuery.or([{ title: regex }, { description: regex }]);
     }
 
     videosQuery = videosQuery.sort({ createdAt: -1 }).lean();
 
-    let videos = [];
-    let total = 0;
+    // Pagination
+    const pageNum = parseInt(parseStringQuery(page) || '1', 10);
+    const limitNum = parseInt(parseStringQuery(limit) || '10', 10);
+    const skip = (pageNum - 1) * limitNum;
 
-    if (page && limit) {
-      total = await Video.countDocuments(videosQuery.getFilter());
-      const skip = (page - 1) * limit;
-      videos = await videosQuery.skip(skip).limit(limit);
-      const totalPages = Math.ceil(total / limit);
+    const total = await Video.countDocuments(videosQuery.getFilter());
+    const videos = await videosQuery.skip(skip).limit(limitNum);
 
-      const host = getBaseUrl(req);
-      const videosWithStream = videos.map((v: any) => ({
-        ...v,
-        filepath: `${host}/api/video/${v._id}`,
-      }));
-
-      return res
-        .status(200)
-        .json({ page, limit, total, totalPages, videos: videosWithStream });
-    }
-
-    // No pagination → return all
-    videos = await videosQuery;
-    total = videos.length;
-    const host = getBaseUrl(req);
     const videosWithStream = videos.map((v: any) => ({
       ...v,
-      filepath: `${host}/api/video/${v._id}`,
+      filepath: `${host}/api/video/stream/${v._id}`,
     }));
 
-    res.status(200).json({ total, videos: videosWithStream });
+    return res.status(200).json({
+      page: pageNum,
+      limit: limitNum,
+      total,
+      totalPages: Math.ceil(total / limitNum),
+      videos: videosWithStream,
+    });
   } catch (err: any) {
-    console.error('Fetch videos error:', err);
-    res
-      .status(500)
-      .json({ message: 'Internal server error', error: err.message });
+    console.error('Video controller error:', err);
+    return res.status(500).json({
+      message: 'Internal server error',
+      error: err.message,
+    });
   }
 };
