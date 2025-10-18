@@ -6,6 +6,7 @@ import { VideoProvider } from './video.context';
 import { CommentProvider } from './comment.context';
 import { LikeProvider } from './like.context';
 import { WatchProvider } from './watch.context';
+import { HistoryProvider } from './history.context';
 
 const AppProvider = ({ children }: any) => {
   return (
@@ -15,8 +16,10 @@ const AppProvider = ({ children }: any) => {
           <CommentProvider>
             <LikeProvider>
               <WatchProvider>
-                <Toaster />
-                {children}
+                <HistoryProvider>
+                  <Toaster />
+                  {children}
+                </HistoryProvider>
               </WatchProvider>
             </LikeProvider>
           </CommentProvider>

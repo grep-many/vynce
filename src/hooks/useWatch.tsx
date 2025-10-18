@@ -1,4 +1,3 @@
-import { VideoContext } from '@/context/video.context';
 import { WatchContext } from '@/context/watch.context';
 import React from 'react';
 

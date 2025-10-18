@@ -2,6 +2,7 @@ import VideoComments from '@/components/video/comments';
 import VideoInfo from '@/components/video/info';
 import VideoPlayer from '@/components/video/player';
 import RelatedVideos from '@/components/video/related';
+import useHistory from '@/hooks/useHistory';
 import useVideo from '@/hooks/useVideo';
 import { useRouter } from 'next/router';
 import React from 'react';
@@ -10,6 +11,7 @@ const Watch = () => {
   const router = useRouter();
   const { id } = router.query;
   const { videos, fetchVideo, loading } = useVideo();
+  const { addVideoToHistory } = useHistory();
 
   const stringId = React.useMemo(() => (Array.isArray(id) ? id[0] : id), [id]);
 
@@ -23,6 +25,7 @@ const Watch = () => {
     if (stringId && !video) {
       fetchVideo(stringId);
     }
+    addVideoToHistory(id)
   }, [id]);
 
   if (loading && !video) {
