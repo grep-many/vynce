@@ -5,10 +5,10 @@ import cookie from 'cookie';
 
 export const accessSecret = process.env.ACCESS_TOKEN_SECRET || 'secret';
 
-export interface APIReq extends NextApiRequest{
+interface APIReq extends NextApiRequest {
   user?: {
-    _id:string
-  }
+    _id: string;
+  };
 }
 
 export const login = async (req: APIReq, res: NextApiResponse) => {

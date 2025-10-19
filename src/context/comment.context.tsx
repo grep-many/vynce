@@ -1,9 +1,9 @@
 import React, { ReactNode } from 'react';
 import {
-  getComments as fetchCommentsAPI,
-  addComment as addCommentAPI,
-  editComment as editCommentAPI,
-  deleteComment as deleteCommentAPI,
+  fetchCommentsAPI,
+  addCommentAPI,
+  editCommentAPI,
+  deleteCommentAPI,
   Comment,
   CommentData,
   EditCommentData,

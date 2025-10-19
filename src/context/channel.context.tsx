@@ -7,6 +7,7 @@ import {
 } from '@/services/channel.service';
 
 interface Channel {
+  videos: Video[];
   _id: string;
   name: string;
   description?: string;

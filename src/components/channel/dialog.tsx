@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import React, { ChangeEvent, FormEvent } from 'react';
+import React, { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -14,10 +14,34 @@ import { Textarea } from '../ui/textarea';
 import { Button } from '../ui/button';
 import useAuth from '@/hooks/useAuth';
 
-const ChannelDialogue = ({ isopen, onclose, channeldata, mode }: any) => {
+interface ChannelData {
+  _id?: string;
+  name?: string;
+  description?: string;
+}
+
+interface ChannelDialogueProps {
+  isopen: boolean;
+  onclose: () => void;
+  channeldata?: ChannelData;
+  mode: 'create' | 'edit';
+}
+
+interface FormData {
+  name: string;
+  description: string;
+}
+
+const ChannelDialogue: React.FC<ChannelDialogueProps> = ({
+  isopen,
+  onclose,
+  channeldata,
+  mode,
+}) => {
   const { loading, user, createOrUpdate } = useAuth();
   const router = useRouter();
-  const [formData, setFormData] = React.useState<any>({
+
+  const [formData, setFormData] = useState<FormData>({
     name: '',
     description: '',
   });
@@ -26,19 +50,18 @@ const ChannelDialogue = ({ isopen, onclose, channeldata, mode }: any) => {
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
-    setFormData((prev: any) => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handlesubmit = async (e: FormEvent) => {
+  const handlesubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    await createOrUpdate(formData).then((channel:any) => {
-      router.push(`/channel/${channel._id}`);
-      onclose();
-    });
+    const channel = await createOrUpdate(formData);
+    router.push(`/channel/${channel._id}`);
+    onclose();
   };
 
-  React.useEffect(() => {
-    if (channeldata && mode == 'edit') {
+  useEffect(() => {
+    if (channeldata && mode === 'edit') {
       setFormData({
         name: channeldata.name || '',
         description: channeldata.description || '',
@@ -49,7 +72,9 @@ const ChannelDialogue = ({ isopen, onclose, channeldata, mode }: any) => {
         description: formData.description || '',
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [channeldata, user]);
+
   return (
     <Dialog open={isopen} onOpenChange={onclose}>
       <DialogContent className="sm:max-w-md md:max-w-lg">
@@ -75,6 +100,7 @@ const ChannelDialogue = ({ isopen, onclose, channeldata, mode }: any) => {
               onChange={handleChange}
             />
           </div>
+
           {/* Channel Description */}
           <div className="space-y-2">
             <Label htmlFor="description">Channel Description</Label>

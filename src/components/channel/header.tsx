@@ -9,24 +9,24 @@ import { toast } from 'sonner';
 interface ChannelHeaderProps {
   channel: any;
   user: any;
+  subscribed: boolean; // subscription state from parent
+  isOwner: boolean; // ownership flag from parent
   onEdit?: () => void; // optional edit handler for channel owner
 }
 
 const ChannelHeader: React.FC<ChannelHeaderProps> = ({
-  subscribed,
-  isOwner,
   channel,
   user,
+  subscribed,
+  isOwner,
   onEdit,
 }) => {
-  const { subscribe, isChannelSubscribed } = useChannel();
-  const isSubscribed = isChannelSubscribed(channel?._id);
+  const { subscribe } = useChannel();
 
   const handleSubscribe = async () => {
-    if (!user) return toast.warning("Login to subscribe!");
+    if (!user) return toast.warning('Login to subscribe!');
     await subscribe(channel?._id);
   };
-
 
   return (
     <div className="w-full">
@@ -51,12 +51,8 @@ const ChannelHeader: React.FC<ChannelHeaderProps> = ({
             </h1>
             {/* Edit button for channel owner */}
             {isOwner && onEdit && (
-              <Button
-                onClick={onEdit}
-                variant="outline"
-                title="Edit Channel"
-              >
-                <Pencil/>
+              <Button onClick={onEdit} variant="outline" title="Edit Channel">
+                <Pencil />
               </Button>
             )}
           </div>

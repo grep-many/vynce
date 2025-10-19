@@ -10,30 +10,41 @@ import ChannelDialogue from '@/components/channel/dialog';
 import useAuth from '@/hooks/useAuth';
 import useChannel from '@/hooks/useChannel';
 import NotFound from '@/components/not-found';
+import Loading from '@/components/loading';
 
 const Channel: React.FC = () => {
   const router = useRouter();
   const { id } = router.query;
   const { user } = useAuth();
-  const { isChannelSubscribed, channel, subscribedChannels, fetchChannel } =
-    useChannel();
+  const {
+    isChannelSubscribed,
+    loading,
+    channel,
+    subscribedChannels,
+    fetchChannel,
+  } = useChannel();
 
   const [subscribed, setSubscribed] = React.useState<boolean>(false);
   const [isDialogueOpen, setIsDialogueOpen] = React.useState(false);
 
+  const isOwner = id === user?.channel?._id;
+
   // Fetch channel data
   React.useEffect(() => {
-    if (id) {
-      fetchChannel(id as string);
-    }
+    if (id) fetchChannel(id as string);
   }, [id]);
 
-  // Update subscription state
+  // Update subscription state safely
   React.useEffect(() => {
-    if (id && subscribedChannels.length > 0) {
-      setSubscribed(isChannelSubscribed(id as string));
-    }
+    if (!id) return;
+
+    const subscribedState = isChannelSubscribed(id as string);
+    setSubscribed((prev) =>
+      prev !== subscribedState ? subscribedState : prev,
+    );
   }, [id, subscribedChannels]);
+
+  if (loading) return <Loading />;
 
   // Channel not found
   if (!channel) {
@@ -56,14 +67,14 @@ const Channel: React.FC = () => {
       {/* Channel Header */}
       <ChannelHeader
         subscribed={subscribed}
-        isOwner={id === user?.channel?._id}
+        isOwner={isOwner}
         channel={channel}
         user={user}
-        onEdit={user?.channel?._id === id ? openEditDialogue : undefined} // optional edit button
+        onEdit={isOwner ? openEditDialogue : undefined}
       />
 
       {/* Channel Edit Dialogue */}
-      {user?.channel?._id === id && (
+      {isOwner && (
         <ChannelDialogue
           isopen={isDialogueOpen}
           onclose={closeEditDialogue}
@@ -75,7 +86,7 @@ const Channel: React.FC = () => {
       <ChannelTabs />
 
       {/* Video Uploader */}
-      {id === user?.channel?._id && (
+      {isOwner && (
         <div className="p-4 pb-8">
           <VideoUploader channelId={id as string} channelName={channel.name} />
         </div>

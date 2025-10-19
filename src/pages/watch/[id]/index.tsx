@@ -15,23 +15,22 @@ import Loading from '@/components/loading';
 const Watch: React.FC = () => {
   const router = useRouter();
   const { id } = router.query;
+  const videoId = Array.isArray(id) ? id[0] : id; 
   const { user } = useAuth();
   const { videos, fetchVideo, loading } = useVideo();
   const { addVideoToHistory } = useHistory();
 
-  const stringId = React.useMemo(() => (Array.isArray(id) ? id[0] : id), [id]);
-
   const video = React.useMemo(
-    () => videos.find((v) => v._id === stringId),
-    [videos, stringId],
+    () => videos.find((v) => v._id === videoId),
+    [videos, videoId],
   );
 
   React.useEffect(() => {
-    if (stringId && !video) {
-      fetchVideo(stringId);
+    if (videoId && !video) {
+      fetchVideo(videoId);
     }
-    if (user && stringId) addVideoToHistory(stringId);
-  }, [stringId, video, user]);
+    if (user && videoId) addVideoToHistory(videoId);
+  }, [videoId, video, user]);
 
   // Loading state
   if (loading && !video) {
@@ -39,7 +38,7 @@ const Watch: React.FC = () => {
   }
 
   // Video not found
-  if (!video) {
+  if (!video || !videoId) {
     return (
       <NotFound
         message="Video not found!"
@@ -58,7 +57,7 @@ const Watch: React.FC = () => {
         <div className="lg:col-span-2 space-y-4">
           <VideoPlayer video={video} />
           <VideoInfo video={video} />
-          <VideoComments videoId={stringId} />
+          {typeof id === 'string' && <VideoComments videoId={videoId} />}
         </div>
 
         {/* Related videos sidebar */}
