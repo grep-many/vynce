@@ -1,13 +1,13 @@
 import axiosInstance from '@/lib/axios';
 import { AxiosError } from 'axios';
 
-interface UploadVideoData {
+export interface UploadVideoData {
   title: string;
   description: string;
   file: File;
 }
 
-interface VideoFilters {
+export interface VideoFilters {
   page?: number;
   limit?: number;
   search?: string;

@@ -20,9 +20,14 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const videoPath = path.join('uploads', path.basename(video.filename));
 
     if (!fs.existsSync(videoPath)) {
+      // File missing → delete video from DB
+      const video = await Video.findByIdAndDelete(videoId);
       return res
         .status(404)
-        .json({ message: 'Video file not found on server' });
+        .json({
+          message: 'Video file not found!',
+          video
+        });
     }
 
     const stat = fs.statSync(videoPath);
@@ -45,8 +50,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const end = Math.min(start + CHUNK_SIZE, fileSize - 1);
     const contentLength = end - start + 1;
 
+    // Increment views
     video.views += 1;
-    await video.save()
+    await video.save();
 
     res.writeHead(206, {
       'Content-Range': `bytes ${start}-${end}/${fileSize}`,

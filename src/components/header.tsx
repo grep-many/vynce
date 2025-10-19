@@ -89,7 +89,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
       {(!isMobile || mobileSearchOpen) && (
         <form
           onSubmit={handleSearch}
-          className="flex items-center gap-2 flex-1 max-w-2xl mx-4"
+          className="flex items-center gap-2 flex-1 max-w-2xl mx-4 ml-0"
         >
           <div className="flex flex-1 items-center">
             {/* X BUTTON ON MOBILE LEFT */}

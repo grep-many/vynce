@@ -5,12 +5,11 @@ import {
   uploadVideo,
   UploadVideoData,
 } from '@/services/video.service';
-import { Video } from '@/types/video';
 import { toast } from 'sonner';
 import { useRouter } from 'next/router';
 
 interface VideoContextType {
-  videos: Video[];
+  videos: any[];
   total: number;
   page: number;
   loading: boolean;
@@ -53,7 +52,7 @@ interface ProviderProps {
 }
 
 export const VideoProvider: React.FC<ProviderProps> = ({ children }) => {
-  const [videos, setVideos] = React.useState<Video[]>([]);
+  const [videos, setVideos] = React.useState<any[]>([]);
   const [page, setPage] = React.useState(1);
   const [total, setTotal] = React.useState(0);
   const [loading, setLoading] = React.useState(false);
@@ -62,9 +61,9 @@ export const VideoProvider: React.FC<ProviderProps> = ({ children }) => {
   const [uploadProgress, setUploadProgress] = React.useState(0);
   const router = useRouter();
 
-  const mergeVideos = (existing: Video[], incoming: Video[], max = 10) => {
+  const mergeVideos = (existing: any[], incoming: any[], max = 10) => {
     const combined = [...incoming, ...existing];
-    const uniqueMap = new Map<string, Video>();
+    const uniqueMap = new Map<string, any>();
     for (const v of combined) {
       if (!uniqueMap.has(v._id)) uniqueMap.set(v._id, v);
     }

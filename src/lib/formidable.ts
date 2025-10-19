@@ -1,14 +1,14 @@
 import formidable, { File, Fields, Files } from 'formidable';
 import type { NextApiRequest } from 'next';
 
-interface UploadedFile {
+export interface UploadedFile {
   filename: string;
   filepath: string;
   filetype: string;
   filesize: number;
 }
 
-interface VideoFields {
+export interface VideoFields {
   title?: string;
   description?: string;
   [key: string]: any;

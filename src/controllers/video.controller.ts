@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import uploadFile, { UploadedFile } from '@/lib/formidable';
+import Channel from "@/models/channel.model"
 import Video from '@/models/video.model';
 import User from '@/models/user.model';
 import { getBaseUrl } from '@/lib';
