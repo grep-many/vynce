@@ -4,9 +4,16 @@ const useMobile = (breakpoint = 768) => {
   const [isMobile, setIsMobile] = React.useState(false);
 
   React.useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < breakpoint);
+    if (typeof window === 'undefined') return;
+
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < breakpoint);
+    };
+
+    // Run once on mount
     checkMobile();
 
+    // Listen for resize
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, [breakpoint]);

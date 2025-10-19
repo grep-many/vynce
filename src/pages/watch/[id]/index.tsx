@@ -1,3 +1,7 @@
+'use client';
+
+import React from 'react';
+import { useRouter } from 'next/router';
 import VideoComments from '@/components/video/comments';
 import VideoInfo from '@/components/video/info';
 import VideoPlayer from '@/components/video/player';
@@ -5,13 +9,13 @@ import RelatedVideos from '@/components/video/related';
 import useAuth from '@/hooks/useAuth';
 import useHistory from '@/hooks/useHistory';
 import useVideo from '@/hooks/useVideo';
-import { useRouter } from 'next/router';
-import React from 'react';
+import NotFound from '@/components/not-found';
+import Loading from '@/components/loading';
 
-const Watch = () => {
+const Watch: React.FC = () => {
   const router = useRouter();
   const { id } = router.query;
-  const {user} =useAuth()
+  const { user } = useAuth();
   const { videos, fetchVideo, loading } = useVideo();
   const { addVideoToHistory } = useHistory();
 
@@ -22,27 +26,28 @@ const Watch = () => {
     [videos, stringId],
   );
 
-  // ✅ Fetch only if video not already in context
   React.useEffect(() => {
     if (stringId && !video) {
       fetchVideo(stringId);
     }
-    if(user)addVideoToHistory(id)
-  }, [id]);
+    if (user && stringId) addVideoToHistory(stringId);
+  }, [stringId, video, user]);
 
+  // Loading state
   if (loading && !video) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <p className="text-muted-foreground">Loading video...</p>
-      </div>
-    );
+    return <Loading />;
   }
 
+  // Video not found
   if (!video) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <p className="text-muted-foreground">Video not found!</p>
-      </div>
+      <NotFound
+        message="Video not found!"
+        button={{
+          text: 'Explore Videos',
+          onClick: () => router.push('/'),
+        }}
+      />
     );
   }
 
@@ -53,7 +58,7 @@ const Watch = () => {
         <div className="lg:col-span-2 space-y-4">
           <VideoPlayer video={video} />
           <VideoInfo video={video} />
-          <VideoComments videoId={id}  />
+          <VideoComments videoId={stringId} />
         </div>
 
         {/* Related videos sidebar */}

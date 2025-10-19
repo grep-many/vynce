@@ -11,6 +11,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
+import {
+  Card,
+  CardContent,
+  CardTitle,
+  CardDescription,
+} from '@/components/ui/card';
 
 export type VideoType = 'default' | 'related' | 'content';
 
@@ -42,17 +48,14 @@ const VideoCard: React.FC<VideoCardProps> = ({
   const videoRef = React.useRef<HTMLVideoElement | null>(null);
   const [isPlaying, setIsPlaying] = React.useState(false);
 
-  // --- Normalize channel data ---
   const channel =
     typeof video.channel === 'object'
       ? video.channel
       : { _id: '', name: video.channel || 'Unknown Channel' };
 
-  const channelName = channel?.name;
+  const channelName = channel.name;
   const channelId = channel._id;
   const initials = extractInitials(channelName);
-
-  // --- Format other data ---
   const viewsText = formatViews(video?.views || 0);
   const uploadTime = uploadTimeCal(video?.createdAt);
   const watchedTime = video?.watchedon ? uploadTimeCal(video?.watchedon) : null;
@@ -73,151 +76,179 @@ const VideoCard: React.FC<VideoCardProps> = ({
     }
   };
 
-  // =========================================================
-  // RELATED VIDEOS
-  // =========================================================
+  // ----------------------------
+  // Three-dot menu (always clickable)
+  // ----------------------------
+  const renderMenu = () =>
+    onRemove ? (
+      <div className="absolute top-2 right-2 z-10 bg-muted/70 rounded">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="w-8 h-8 p-1 hover:bg-secondary/30"
+            >
+              <MoreVertical className="w-4 h-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => onRemove(video._id)}>
+              <X className="w-4 h-4 mr-2" /> Remove
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    ) : null;
+
+  // ----------------------------
+  // RELATED CARD (horizontal left video, right details)
+  // ----------------------------
   if (type === 'related') {
     return (
       <Link
-        href={`/watch/${video?._id}`}
-        className="flex gap-2 group hover:bg-secondary rounded-lg p-1 transition-colors"
+        href={`/watch/${video._id}`}
+        className="block"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-        <div className="w-36 sm:w-40 flex-shrink-0">
-          <VideoElement
-            videoRef={videoRef}
-            video={video}
-            isPlaying={isPlaying}
-          />
-        </div>
-        <div className="flex-1 min-w-0">
-          <h3 className="font-medium text-sm line-clamp-2 group-hover:text-blue-600">
-            {video?.title}
-          </h3>
-          <p className="text-xs text-muted-foreground mt-1">{channelName}</p>
-          <p className="text-xs text-muted-foreground">
-            {viewsText} views • {uploadTime}
-          </p>
+        <div className="relative group">
+          {renderMenu()}
+          <Card className="flex flex-row gap-3 items-start p-2 hover:bg-secondary/20 transition-colors rounded-lg">
+            {/* Video Thumbnail */}
+            <div className="w-36 sm:w-40 flex-shrink-0 aspect-video relative rounded-md overflow-hidden bg-muted">
+              <VideoElement
+                videoRef={videoRef}
+                video={video}
+                isPlaying={isPlaying}
+              />
+            </div>
+
+            {/* Content Details */}
+            <CardContent className="flex-1 min-w-0 p-0">
+              <CardTitle className="text-sm font-semibold line-clamp-2 group-hover:text-foreground/70">
+                {video.title}
+              </CardTitle>
+
+              <CardDescription className="text-xs text-muted-foreground mt-1 line-clamp-1">
+                {channelName}
+              </CardDescription>
+
+              <p className="text-xs text-muted-foreground mt-1">
+                {viewsText} views • {uploadTime}
+              </p>
+
+              <CardDescription className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                {video.description}
+              </CardDescription>
+            </CardContent>
+          </Card>
         </div>
       </Link>
     );
   }
 
-  // =========================================================
-  // CONTENT / HISTORY VIDEOS
-  // =========================================================
+  // ----------------------------
+  // CONTENT CARD (horizontal)
+  // ----------------------------
   if (type === 'content') {
     return (
       <div
-        className="flex flex-col lg:flex-row gap-4 group rounded-lg p-2 hover:bg-secondary/20 transition-all"
+        className="relative group"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-        {/* Thumbnail */}
-        <Link
-          href={`/watch/${video?._id}`}
-          className="flex-shrink-0 w-full md:w-80 aspect-video relative rounded-lg overflow-hidden bg-muted"
-        >
+        {renderMenu()}
+        <Card className="flex flex-col md:flex-row gap-4 p-2 hover:bg-secondary/20 transition-all rounded-lg">
+          <Link
+            href={`/watch/${video._id}`}
+            className="flex-shrink-0 w-full md:w-80 aspect-video relative rounded-lg overflow-hidden bg-muted"
+          >
+            <VideoElement
+              videoRef={videoRef}
+              video={video}
+              isPlaying={isPlaying}
+            />
+          </Link>
+
+          <CardContent className="flex-1 min-w-0 py-1">
+            <Link href={`/watch/${video._id}`}>
+              <CardTitle className="text-lg line-clamp-2 group-hover:text-foreground/70 mb-2">
+                {video.title}
+              </CardTitle>
+            </Link>
+
+            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2 flex-wrap">
+              <span>{viewsText} views</span>
+              <span>•</span>
+              <span>{uploadTime}</span>
+            </div>
+
+            <Link
+              href={`/channel/${channelId}`}
+              className="flex items-center gap-2 mb-2 hover:text-foreground/90"
+            >
+              <Avatar className="w-6 h-6">
+                <AvatarImage src={channel.image} alt={channel.name} />
+                <AvatarFallback className="text-xs">{initials}</AvatarFallback>
+              </Avatar>
+              <span className="text-sm">{channelName}</span>
+            </Link>
+
+            <CardDescription className="text-sm text-muted-foreground line-clamp-2">
+              {video.description}
+            </CardDescription>
+
+            {watchedTime && (
+              <p className="text-xs text-muted-foreground mt-2">
+                Watched {watchedTime}
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // ----------------------------
+  // DEFAULT CARD (vertical)
+  // ----------------------------
+  return (
+    <Link
+      href={`/watch/${video._id}`}
+      className="block"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      <div className="relative group">
+        {renderMenu()}
+        <Card className="w-full sm:max-w-sm cursor-pointer transition-transform duration-200 hover:scale-[1.02] hover:bg-secondary/20 p-2 rounded-md">
           <VideoElement
             videoRef={videoRef}
             video={video}
             isPlaying={isPlaying}
           />
-        </Link>
-
-        {/* Info */}
-        <div className="flex-1 min-w-0 py-1">
-          <Link href={`/watch/${video?._id}`}>
-            <h3 className="font-medium text-lg line-clamp-2 group-hover:text-blue-600 mb-2">
-              {video?.title}
-            </h3>
-          </Link>
-
-          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2 flex-wrap">
-            <span>{viewsText} views</span>
-            <span>•</span>
-            <span>{uploadTime}</span>
-          </div>
-
-          <Link
-            href={`/channel/${channelId}`}
-            className="flex items-center gap-2 mb-2 hover:text-foreground/90"
-          >
-            <Avatar className="w-6 h-6">
-              <AvatarImage src={channel?.image} alt={channel?.name} />
-              <AvatarFallback className="text-xs">{initials}</AvatarFallback>
-            </Avatar>
-            <span className="text-sm">{channelName}</span>
-          </Link>
-
-          <p className="text-sm text-muted-foreground line-clamp-2">
-            {video?.description}
-          </p>
-
-          {watchedTime && (
-            <p className="text-xs text-muted-foreground mt-2">
-              Watched {watchedTime}
-            </p>
-          )}
-        </div>
-
-        {/* Dropdown */}
-        {onRemove && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <MoreVertical className="w-4 h-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onRemove(video?._id)}>
-                <X className="w-4 h-4 mr-2" />
-                Remove
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
-      </div>
-    );
-  }
-
-  // =========================================================
-  // DEFAULT VIDEO CARD
-  // =========================================================
-  return (
-    <Link href={`/watch/${video?._id}`}>
-      <div
-        className=" w-full sm:max-w-sm cursor-pointer transition-transform duration-200 hover:scale-[1.02] hover:bg-secondary/20 p-2 rounded-md"
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-      >
-        <VideoElement videoRef={videoRef} video={video} isPlaying={isPlaying} />
-        <div className="flex mt-3 space-x-3">
-          <div className="flex-shrink-0 w-10 h-10">
-            <Avatar>
-              <AvatarImage src={channel?.image} alt={channel?.name} />
+          <CardContent className="flex mt-3 space-x-3 p-0">
+            <Avatar className="flex-shrink-0 w-10 h-10">
+              <AvatarImage src={channel.image} alt={channel.name} />
               <AvatarFallback>{initials}</AvatarFallback>
             </Avatar>
-          </div>
-          <div className="flex flex-col overflow-hidden">
-            <h3 className="text-sm font-semibold line-clamp-2">
-              {video?.title.length > 20
-                ? `${video?.title.slice(0, 20)}...`
-                : video?.title}
-            </h3>
-            <p className="text-xs text-muted-foreground truncate">
-              {channelName}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {viewsText} views • {uploadTime}
-            </p>
-          </div>
-        </div>
+
+            <div className="flex flex-col overflow-hidden">
+              <CardTitle className="text-sm font-semibold line-clamp-2">
+                {video.title.length > 20
+                  ? `${video.title.slice(0, 20)}...`
+                  : video.title}
+              </CardTitle>
+              <CardDescription className="text-xs text-muted-foreground truncate">
+                {channelName}
+              </CardDescription>
+              <p className="text-xs text-muted-foreground">
+                {viewsText} views • {uploadTime}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </Link>
   );

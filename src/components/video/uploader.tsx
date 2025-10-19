@@ -6,6 +6,7 @@ import { Label } from '../ui/label';
 import { Progress } from '../ui/progress';
 import { Textarea } from '../ui/textarea';
 import useVideo from '@/hooks/useVideo';
+import { useRouter } from 'next/router';
 
 const VideoUploader = ({ id, name }: any) => {
   const {
@@ -22,6 +23,7 @@ const VideoUploader = ({ id, name }: any) => {
     title: '',
     description: '',
   });
+  const router = useRouter()
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -65,7 +67,10 @@ const VideoUploader = ({ id, name }: any) => {
     // data.append('description', formData.description);
     await upload({...formData,file:videoFile},
       (percent:number) => setUploadProgress(percent),
-    ).then(()=>resetForm())
+    ).then((video) => {
+      resetForm()
+      router.push(`/watch/${video?._id}`)
+    })
   };
 
   return (

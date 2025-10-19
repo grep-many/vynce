@@ -1,12 +1,15 @@
 import React from 'react';
+import { useRouter } from 'next/navigation'; // Next 13+ app router
 import useAuth from '@/hooks/useAuth';
 import useChannel from '@/hooks/useChannel';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { X } from 'lucide-react';
+import NotFound from '@/components/not-found';
 
 const Subscriptions: React.FC = () => {
+  const router = useRouter();
   const { subscribedChannels, fetchSubscribedChannels, subscribe } =
     useChannel();
   const { user } = useAuth();
@@ -19,16 +22,28 @@ const Subscriptions: React.FC = () => {
     await subscribe(id); // toggle unsubscribe
   };
 
+  // Conditional rendering for no subscriptions or not signed in
+  if (!user) {
+    return (
+      <NotFound
+        message="You need to sign in to view your subscriptions."
+        button={{
+          text: 'Sign In',
+          onClick: () => router.push('/signin'),
+        }}
+      />
+    );
+  }
+
   if (!subscribedChannels || subscribedChannels.length === 0) {
     return (
-      <main className="p-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-2xl font-bold mb-4">Subscriptions</h1>
-          <p className="text-muted-foreground">
-            You are not subscribed to any channels yet.
-          </p>
-        </div>
-      </main>
+      <NotFound
+        message="You are not subscribed to any channels yet."
+        button={{
+          text: 'Explore Videos',
+          onClick: () => router.push('/'),
+        }}
+      />
     );
   }
 
@@ -40,7 +55,7 @@ const Subscriptions: React.FC = () => {
           {subscribedChannels.map((channel) => (
             <div
               key={channel._id}
-              className="group relative flex flex-col gap-3 p-4 rounded-lg transition hover:bg-secondary/20"
+              className="bg-card relative flex flex-col gap-3 p-4 rounded-lg transition hover:bg-secondary/20"
             >
               {/* Channel Image */}
               <Link href={`/channel/${channel._id}`}>
@@ -56,7 +71,7 @@ const Subscriptions: React.FC = () => {
               <div className="flex flex-col gap-1">
                 <Link
                   href={`/channel/${channel._id}`}
-                  className="text-lg font-medium line-clamp-1 hover:text-blue-600"
+                  className="text-lg font-medium line-clamp-1 hover:text-foreground/70"
                 >
                   {channel.name}
                 </Link>
@@ -72,7 +87,7 @@ const Subscriptions: React.FC = () => {
               <Button
                 variant="destructive"
                 size="sm"
-                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition"
+                className="absolute top-2 right-2 transition"
                 onClick={() => handleRemove(channel._id)}
               >
                 <X className="w-4 h-4" />
