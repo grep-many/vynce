@@ -1,5 +1,3 @@
-'use client';
-
 import React, { useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import useVideo from '@/hooks/useVideo';
@@ -31,16 +29,6 @@ const SearchPage = () => {
     router.push(`/search?q=${encodeURIComponent(query)}&page=${page - 1}`);
   };
 
-  if (!query.trim()) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-muted-foreground">
-          Enter a search term to find videos and channels.
-        </p>
-      </div>
-    );
-  }
-
   if (loading) return <Loading />;
 
   if (videos.length === 0) {
@@ -58,7 +46,6 @@ const SearchPage = () => {
     <main className="p-4 max-w-5xl mx-auto">
       <VideoGrid
         videos={videos}
-        loading={loading}
         total={total}
         page={page}
         onNext={handleNext}

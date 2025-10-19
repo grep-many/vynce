@@ -58,7 +58,7 @@ const VideoInfo: React.FC<VideoInfoProps> = ({ video }) => {
       toast.warning('Signin to like the video!');
       return;
     }
-    const { likes: updatedLikes } = await reactVideo(video._id, like);
+    const { likes: updatedLikes } = await reactVideo(video._id, true);
     if (updatedLikes !== undefined) {
       setLikes(updatedLikes);
       setIsLiked(like);
@@ -116,7 +116,7 @@ const VideoInfo: React.FC<VideoInfoProps> = ({ video }) => {
       }
     }
   };
-  
+
   return (
     <div className="space-y-4">
       {/* Title */}
@@ -127,7 +127,7 @@ const VideoInfo: React.FC<VideoInfoProps> = ({ video }) => {
         <p>{showFullDescription ? video.description : truncatedDescription}</p>
         {video.description.length > 150 && (
           <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
             className="mt-1 p-0 h-auto font-medium"
             onClick={() => setShowFullDescription(!showFullDescription)}
@@ -149,7 +149,7 @@ const VideoInfo: React.FC<VideoInfoProps> = ({ video }) => {
           <div>
             <Link
               href={`/channel/${channel._id}`}
-              className="font-medium hover:text-blue-600"
+              className="font-medium hover:text-foreground/70"
             >
               {channel.name}
             </Link>
@@ -170,10 +170,10 @@ const VideoInfo: React.FC<VideoInfoProps> = ({ video }) => {
       {/* Actions */}
       <div className="flex flex-wrap gap-2">
         <Button
-          variant="ghost"
+          variant="outline"
           size="sm"
           className="flex items-center gap-1"
-          onClick={() => handleReaction(true)}
+          onClick={() => handleReaction(!isLiked)} // toggle like/unlike
         >
           <ThumbsUp
             className={`w-5 h-5 ${isLiked ? 'fill-accent-foreground' : ''}`}
@@ -181,7 +181,7 @@ const VideoInfo: React.FC<VideoInfoProps> = ({ video }) => {
           {likes.toLocaleString()}
         </Button>
         <Button
-          variant="ghost"
+          variant="outline"
           size="sm"
           className="flex items-center gap-1"
           onClick={handleWatchClick}
@@ -190,7 +190,7 @@ const VideoInfo: React.FC<VideoInfoProps> = ({ video }) => {
           Watch Later
         </Button>
         <Button
-          variant="ghost"
+          variant="outline"
           size="sm"
           className="flex items-center gap-1"
           onClick={handleShare}

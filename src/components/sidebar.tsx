@@ -12,6 +12,7 @@ import React from 'react';
 import { Button } from './ui/button';
 import ChannelDialogue from './channel/dialog';
 import useAuth from '@/hooks/useAuth';
+import useMobile from '@/hooks/useMobile';
 
 interface SidebarProps {
   sidebarOpen: boolean;
@@ -21,45 +22,47 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, onClose }) => {
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const { user } = useAuth();
+  const isMobile = useMobile(1024);
+
+  const handleLinkClick = () => {
+    if (isMobile && onClose) onClose();
+  };
 
   return (
     <aside
       className={`
-          bg-background border-r h-full transition-all duration-300 ease-in-out
-          ${sidebarOpen ? 'w-full md:w-64 p-2' : 'w-0 p-0'}
-          overflow-hidden
-          md:static md:block
-          fixed top-0 left-0 z-50 md:z-auto
-        `}
+        bg-background border-r h-full transition-all duration-300 ease-in-out
+        ${sidebarOpen ? 'w-full lg:w-64 p-2' : 'w-0 p-0'}
+        overflow-hidden
+        md:static md:block
+        fixed top-0 left-0 z-50 md:z-auto
+      `}
     >
-      {/* Mobile close button at top */}
+      {/* Mobile close button */}
       {onClose && (
-        <div className=" w-full flex justify-end px-2 py-4">
-          <Button
-            variant="outline"
-            size="icon"
-            className="md:hidden"
-            onClick={onClose}
-          >
+        <div className="w-full flex justify-end px-2 py-4 md:hidden">
+          <Button variant="outline" size="icon" onClick={onClose}>
             <X className="w-5 h-5 text-muted-foreground" />
           </Button>
         </div>
       )}
 
       <nav className="space-y-1">
-        <Link href="/">
+        <Link href="/" onClick={handleLinkClick}>
           <Button variant="ghost" className="w-full justify-start">
             <Home className="w-5 h-5 mr-3" />
             Home
           </Button>
         </Link>
-        <Link href="/history">
+
+        <Link href="/history" onClick={handleLinkClick}>
           <Button variant="ghost" className="w-full justify-start">
             <History className="w-5 h-5 mr-3" />
             History
           </Button>
         </Link>
-        <Link href="/subscriptions">
+
+        <Link href="/subscriptions" onClick={handleLinkClick}>
           <Button variant="ghost" className="w-full justify-start">
             <PlaySquare className="w-5 h-5 mr-3" />
             Subscriptions
@@ -68,20 +71,25 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, onClose }) => {
 
         {user && (
           <div className="border-t pt-2 mt-2 space-y-1">
-            <Link href="/liked">
+            <Link href="/liked" onClick={handleLinkClick}>
               <Button variant="ghost" className="w-full justify-start">
                 <ThumbsUp className="w-5 h-5 mr-3" />
                 Liked videos
               </Button>
             </Link>
-            <Link href="/watch/later">
+
+            <Link href="/watch/later" onClick={handleLinkClick}>
               <Button variant="ghost" className="w-full justify-start">
                 <Clock className="w-5 h-5 mr-3" />
                 Watch later
               </Button>
             </Link>
+
             {user?.channel ? (
-              <Link href={`/channel/${user.channel._id}`}>
+              <Link
+                href={`/channel/${user.channel._id}`}
+                onClick={handleLinkClick}
+              >
                 <Button variant="ghost" className="w-full justify-start">
                   <TvMinimalPlay className="w-5 h-5 mr-3" />
                   My Channel

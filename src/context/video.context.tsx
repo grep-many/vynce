@@ -122,6 +122,7 @@ export const VideoProvider: React.FC<ProviderProps> = ({ children }) => {
       setTotal((prev) => prev + 1);
       setUploadComplete(true);
       toast.success(message);
+      return video;
     } catch (err: any) {
       toast.error(err.message || 'Failed to upload video');
     } finally {

@@ -97,20 +97,25 @@ export const getVideo = async (req: NextApiRequest, res: NextApiResponse) => {
       });
     }
 
-    // --- 2️⃣ Get multiple videos ---
-    const query: any = {};
+    // --- 2️⃣ Prepare filters ---
+    const query: Record<string, any> = {};
 
     if (channel) {
       query.channel = Array.isArray(channel) ? channel[0] : channel;
     }
 
     if (search) {
-      const searchValue = Array.isArray(search) ? search[0] : search;
-      query.$or = [
-        { title: { $regex: searchValue, $options: 'i' } },
-        { description: { $regex: searchValue, $options: 'i' } },
-      ];
+      const searchValue = Array.isArray(search) ? search[0] : search.trim();
+      if (searchValue) {
+        // MongoDB-level text filtering (no JS)
+        query.$or = [
+          { title: { $regex: searchValue, $options: 'i' } },
+          { description: { $regex: searchValue, $options: 'i' } },
+        ];
+      }
     }
+
+    // --- 3️⃣ Pagination ---
     const pageNum = parseInt(Array.isArray(page) ? page[0] : page || '1', 10);
     const limitNum = parseInt(
       Array.isArray(limit) ? limit[0] : limit || '10',
@@ -118,7 +123,7 @@ export const getVideo = async (req: NextApiRequest, res: NextApiResponse) => {
     );
     const skip = (pageNum - 1) * limitNum;
 
-    // 3️⃣ Fetch from MongoDB directly
+    // --- 4️⃣ Query database directly ---
     const [total, videos] = await Promise.all([
       Video.countDocuments(query),
       Video.find(query)
@@ -129,6 +134,7 @@ export const getVideo = async (req: NextApiRequest, res: NextApiResponse) => {
         .lean(),
     ]);
 
+    // --- 5️⃣ Transform output ---
     const videosWithStream = videos.map((v) => ({
       ...v,
       filepath: `${host}/api/video/stream/${v._id}`,
@@ -136,6 +142,7 @@ export const getVideo = async (req: NextApiRequest, res: NextApiResponse) => {
     }));
 
     return res.status(200).json({
+      message: 'Videos fetched successfully',
       page: pageNum,
       limit: limitNum,
       total,

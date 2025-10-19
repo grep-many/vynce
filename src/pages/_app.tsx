@@ -8,9 +8,9 @@ import React from 'react';
 import useMobile from '@/hooks/useMobile';
 
 export default function App({ Component, pageProps }: AppProps) {
-  const isMobile = useMobile(768);
+  const isMobile = useMobile(1200);
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
-  React.useEffect(() => setSidebarOpen(!isMobile), []);
+  React.useEffect(() => setSidebarOpen(!isMobile), [isMobile]);
 
   return (
     <>

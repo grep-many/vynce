@@ -55,6 +55,14 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
     if (e.key === 'Enter') handleSearch(e as any);
   };
 
+  React.useEffect(() => {
+    if (router.query.q && typeof router.query.q === 'string') {
+      setQuery(router.query.q);
+    } else {
+      setQuery('');
+    }
+  }, [router.query.q]);
+
   return (
     <header className="flex items-center justify-between px-2 py-2 border-b bg-background/70 backdrop-blur-2xl z-50">
       {/* LEFT: Menu + Logo */}
