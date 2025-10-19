@@ -17,11 +17,15 @@ export interface Comment {
   userid: string;
   commentbody: string;
   usercommented: string;
-  commentedon: string;
+  commentedOn: string;
+  userImage: string
+  userName: string
+  userEmail: string
+
 }
 
 // --- Fetch comments for a video ---
-export const getComments = async (videoId: string): Promise<Comment[]> => {
+export const fetchCommentsAPI = async (videoId: string): Promise<Comment[]> => {
   try {
     const res = await axiosInstance.get(`/comment?videoId=${videoId}`);
     return res.data.comments || [];
@@ -34,7 +38,7 @@ export const getComments = async (videoId: string): Promise<Comment[]> => {
 };
 
 // --- Add a new comment ---
-export const addComment = async (data: CommentData): Promise<Comment> => {
+export const addCommentAPI = async (data: CommentData): Promise<Comment> => {
   try {
     const res = await axiosInstance.post('/comment', data);
     return res.data.comment;
@@ -47,7 +51,7 @@ export const addComment = async (data: CommentData): Promise<Comment> => {
 };
 
 // --- Edit a comment ---
-export const editComment = async (data: EditCommentData): Promise<Comment> => {
+export const editCommentAPI = async (data: EditCommentData): Promise<Comment> => {
   try {
     const res = await axiosInstance.put('/comment', data);
     return res.data.comment;
@@ -60,7 +64,7 @@ export const editComment = async (data: EditCommentData): Promise<Comment> => {
 };
 
 // --- Delete a comment ---
-export const deleteComment = async (commentId: string): Promise<void> => {
+export const deleteCommentAPI = async (commentId: string): Promise<void> => {
   try {
     await axiosInstance.delete(`/comment?commentId=${commentId}`);
   } catch (err: unknown) {

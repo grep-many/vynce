@@ -11,14 +11,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
-import {
-  Card,
-  CardContent,
-  CardTitle,
-  CardDescription,
-} from '@/components/ui/card';
+import { Card, CardContent, CardTitle, CardDescription } from '../ui/card';
 
-export type VideoType = 'default' | 'related' | 'content';
+type VideoType = 'default' | 'related' | 'content';
 
 interface ChannelInfo {
   _id: string;
@@ -26,7 +21,7 @@ interface ChannelInfo {
   image?: string;
 }
 
-export interface VideoCardProps {
+interface VideoCardProps {
   video: {
     _id: string;
     title: string;
@@ -48,6 +43,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
   const videoRef = React.useRef<HTMLVideoElement | null>(null);
   const [isPlaying, setIsPlaying] = React.useState(false);
 
+  // Handle channel object vs string
   const channel =
     typeof video.channel === 'object'
       ? video.channel
@@ -56,9 +52,22 @@ const VideoCard: React.FC<VideoCardProps> = ({
   const channelName = channel.name;
   const channelId = channel._id;
   const initials = extractInitials(channelName);
-  const viewsText = formatViews(video?.views || 0);
-  const uploadTime = uploadTimeCal(video?.createdAt);
-  const watchedTime = video?.watchedon ? uploadTimeCal(video?.watchedon) : null;
+  const viewsText = formatViews(video?.views ?? 0);
+
+  // Fix: Convert Date to string for uploadTimeCal
+  const uploadTime = uploadTimeCal(
+    video.createdAt instanceof Date
+      ? video.createdAt.toISOString()
+      : video.createdAt,
+  );
+
+  const watchedTime = video.watchedon
+    ? uploadTimeCal(
+        video.watchedon instanceof Date
+          ? video.watchedon.toISOString()
+          : video.watchedon,
+      )
+    : null;
 
   const handleMouseEnter = () => {
     if (videoRef.current) {
@@ -76,9 +85,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
     }
   };
 
-  // ----------------------------
-  // Three-dot menu (always clickable)
-  // ----------------------------
+  // Three-dot menu
   const renderMenu = () =>
     onRemove ? (
       <div className="absolute top-2 right-2 z-10 bg-muted/70 rounded">
@@ -101,9 +108,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
       </div>
     ) : null;
 
-  // ----------------------------
-  // RELATED CARD (horizontal left video, right details)
-  // ----------------------------
+  // RELATED CARD
   if (type === 'related') {
     return (
       <Link
@@ -115,7 +120,6 @@ const VideoCard: React.FC<VideoCardProps> = ({
         <div className="relative group">
           {renderMenu()}
           <Card className="flex flex-row gap-3 items-start p-2 hover:bg-secondary/20 transition-colors rounded-lg">
-            {/* Video Thumbnail */}
             <div className="w-36 sm:w-40 flex-shrink-0 aspect-video relative rounded-md overflow-hidden bg-muted">
               <VideoElement
                 videoRef={videoRef}
@@ -123,21 +127,16 @@ const VideoCard: React.FC<VideoCardProps> = ({
                 isPlaying={isPlaying}
               />
             </div>
-
-            {/* Content Details */}
             <CardContent className="flex-1 min-w-0 p-0">
               <CardTitle className="text-sm font-semibold line-clamp-2 group-hover:text-foreground/70">
                 {video.title}
               </CardTitle>
-
               <CardDescription className="text-xs text-muted-foreground mt-1 line-clamp-1">
                 {channelName}
               </CardDescription>
-
               <p className="text-xs text-muted-foreground mt-1">
                 {viewsText} views • {uploadTime}
               </p>
-
               <CardDescription className="text-xs text-muted-foreground mt-1 line-clamp-2">
                 {video.description}
               </CardDescription>
@@ -148,9 +147,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
     );
   }
 
-  // ----------------------------
-  // CONTENT CARD (horizontal)
-  // ----------------------------
+  // CONTENT CARD
   if (type === 'content') {
     return (
       <div
@@ -210,9 +207,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
     );
   }
 
-  // ----------------------------
-  // DEFAULT CARD (vertical)
-  // ----------------------------
+  // DEFAULT CARD
   return (
     <Link
       href={`/watch/${video._id}`}
@@ -233,7 +228,6 @@ const VideoCard: React.FC<VideoCardProps> = ({
               <AvatarImage src={channel.image} alt={channel.name} />
               <AvatarFallback>{initials}</AvatarFallback>
             </Avatar>
-
             <div className="flex flex-col overflow-hidden">
               <CardTitle className="text-sm font-semibold line-clamp-2">
                 {video.title.length > 20

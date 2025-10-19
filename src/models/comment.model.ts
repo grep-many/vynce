@@ -1,7 +1,7 @@
 import mongoose, { Schema, model, Document } from 'mongoose';
 
 // Interface for a comment document
-export interface IComment extends Document {
+interface IComment extends Document {
   videoId: mongoose.Types.ObjectId | string;
   userid: mongoose.Types.ObjectId | string;
   commentbody: string;

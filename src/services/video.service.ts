@@ -1,7 +1,7 @@
 import axiosInstance from '@/lib/axios';
 import { AxiosError } from 'axios';
 
-export interface UploadVideoData {
+interface UploadVideoData {
   title: string;
   description: string;
   file: File;
@@ -61,11 +61,10 @@ export const getVideos = async ({
   return res.data;
 };
 
-
-export const getVideo = async (id:string) => {
+export const getVideo = async (id: string) => {
   try {
-    const res = await axiosInstance.get(`/video/${id}`)
-    return res.data
+    const res = await axiosInstance.get(`/video/${id}`);
+    return res.data;
   } catch (err: unknown) {
     throw (
       (err as AxiosError<{ message: string }>).response?.data?.message ||

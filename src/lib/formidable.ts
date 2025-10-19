@@ -1,7 +1,7 @@
 import formidable, { File, Fields, Files } from 'formidable';
 import type { NextApiRequest } from 'next';
 
-export interface UploadedFile {
+interface UploadedFile {
   filename: string;
   filepath: string;
   filetype: string;
@@ -17,14 +17,15 @@ interface VideoFields {
 const uploadFile = async (
   req: NextApiRequest,
 ): Promise<{ fields: VideoFields; file: UploadedFile }> => {
-
   const form = formidable({
     multiples: false,
-    uploadDir:"./uploads",
+    uploadDir: './uploads',
     keepExtensions: true,
     filename: (originalName: string) => {
       // Use originalName provided by formidable
-      return `${new Date().toISOString().replace(/:/g, '-')}-${originalName}.mp4`;
+      return `${new Date()
+        .toISOString()
+        .replace(/:/g, '-')}-${originalName}.mp4`;
     },
   });
 

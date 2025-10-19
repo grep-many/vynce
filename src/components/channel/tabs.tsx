@@ -2,7 +2,12 @@ import React, { useState } from 'react';
 import { Button } from '../ui/button';
 import { toast } from 'sonner';
 
-const tabs = [
+interface Tab {
+  id: string;
+  label: string;
+}
+
+const tabs: Tab[] = [
   { id: 'home', label: 'Home' },
   { id: 'videos', label: 'Videos' },
   { id: 'shorts', label: 'Shorts' },
@@ -11,13 +16,13 @@ const tabs = [
   { id: 'about', label: 'About' },
 ];
 
-const ChannelTabs = () => {
-  const [activeTab, setActiveTab] = useState('videos');
+const ChannelTabs: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<string>('videos');
 
-  const handleClick=({id,label})=> {
-    setActiveTab(id);
-    toast.warning(`${id} is just for demo!`)
-  }
+  const handleClick = (tab: Tab) => {
+    setActiveTab(tab.id);
+    toast.warning(`${tab.id} is just for demo!`);
+  };
 
   return (
     <div className="border-b border-border bg-background px-4">
@@ -31,7 +36,7 @@ const ChannelTabs = () => {
                 ? 'border-foreground text-foreground'
                 : 'border-transparent text-muted-foreground hover:text-foreground'
             }`}
-            onClick={()=>handleClick(tab)}
+            onClick={() => handleClick(tab)}
           >
             {tab.label}
           </Button>
