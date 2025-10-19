@@ -1,5 +1,3 @@
-'use client';
-
 import React from 'react';
 import { useRouter } from 'next/router';
 import VideoComments from '@/components/video/comments';
@@ -8,37 +6,52 @@ import VideoPlayer from '@/components/video/player';
 import RelatedVideos from '@/components/video/related';
 import useAuth from '@/hooks/useAuth';
 import useHistory from '@/hooks/useHistory';
-import useVideo from '@/hooks/useVideo';
 import NotFound from '@/components/not-found';
-import Loading from '@/components/loading';
+import { GetServerSideProps } from 'next';
+import { getVideo, getVideos } from '@/services/video.service';
 
-const Watch: React.FC = () => {
-  const router = useRouter();
-  const { id } = router.query;
-  const videoId = Array.isArray(id) ? id[0] : id; 
-  const { user } = useAuth();
-  const { videos, fetchVideo, loading } = useVideo();
-  const { addVideoToHistory } = useHistory();
+interface Props{
+  video: any,
+  related:[any]
+}
 
-  const video = React.useMemo(
-    () => videos.find((v) => v._id === videoId),
-    [videos, videoId],
-  );
-
-  React.useEffect(() => {
-    if (videoId && !video) {
-      fetchVideo(videoId);
-    }
-    if (user && videoId) addVideoToHistory(videoId);
-  }, [videoId, video, user]);
-
-  // Loading state
-  if (loading && !video) {
-    return <Loading />;
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const { id } = context.query;
+  if (!id || Array.isArray(id)) {
+    return { notFound: true };
   }
 
-  // Video not found
-  if (!video || !videoId) {
+  try {
+    const { video } = await getVideo(id);
+    const { videos } = await getVideos({});
+    return {
+      props: {
+        video: video,
+        related:videos
+      },
+    };
+  } catch (err) {
+    return {
+      props: {
+        video: null,
+        related: [],
+      },
+    };
+  }
+};
+
+const Watch: React.FC<Props> = ({video,related}) => {
+  const router = useRouter();
+  const { user } = useAuth();
+  const { addVideoToHistory } = useHistory();
+
+  React.useEffect(() => {
+    if (user&&video) {
+      addVideoToHistory(video?._id)
+    }
+  },[user,video])
+
+  if (!video) {
     return (
       <NotFound
         message="Video not found!"
@@ -57,12 +70,13 @@ const Watch: React.FC = () => {
         <div className="lg:col-span-2 space-y-4">
           <VideoPlayer video={video} />
           <VideoInfo video={video} />
-          {typeof id === 'string' && <VideoComments videoId={videoId} />}
+          {/* {typeof id === 'string' && <VideoComments videoId={video?._id} />} */}
+          <VideoComments videoId={video?._id} />
         </div>
 
         {/* Related videos sidebar */}
         <div className="space-y-4">
-          <RelatedVideos videos={videos.filter((v) => v._id !== video._id)} />
+          <RelatedVideos videos={related.filter((v) => v._id !== video._id)} />
         </div>
       </div>
     </div>
