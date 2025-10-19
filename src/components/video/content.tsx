@@ -21,7 +21,6 @@ const Content: React.FC<ContentProps> = ({
   emptyMessage = 'No videos yet',
   onRemove,
 }) => {
-
   if (!user) {
     return (
       <div className="text-center py-12">
@@ -55,16 +54,8 @@ const Content: React.FC<ContentProps> = ({
 
   return (
     <div className="space-y-4 p-4">
-      {(!(type=="history"))&&<div className="flex justify-between items-center">
-        <p className="text-sm text-gray-600">{videos.length} videos</p>
-        <Button className="flex items-center gap-2">
-          <Play className="w-4 h-4" />
-          Play all
-        </Button>
-      </div>}
-
       <div className="space-y-4">
-        {videos.map((video,i) => (
+        {videos.map((video, i) => (
           <VideoCard
             key={i}
             type="content" // VideoCard uses 'history' type for hover video preview

@@ -145,7 +145,6 @@ export const getChannelById = async (req: APIReq, res: NextApiResponse) => {
       ...v,
       filepath: `${host}/api/video/stream/${v._id}`,
       likes: v.likes.length,
-      dislikes: v.dislikes.length,
     }));
 
     // 4️⃣ Return channel + videos

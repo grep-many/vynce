@@ -5,12 +5,11 @@ import {
   History,
   LogOut,
   Menu,
-  Mic,
   Search,
   ThumbsUp,
   TvMinimalPlay,
   User,
-  VideoIcon,
+  X,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Input } from './ui/input';
@@ -28,75 +27,112 @@ import { extractInitials } from '@/lib';
 import ChannelDialogue from './channel/dialog';
 import { useRouter } from 'next/router';
 import useAuth from '@/hooks/useAuth';
+import useMobile from '@/hooks/useMobile';
 import Image from 'next/image';
 
-const Header = () => {
-  //TODO: remove the below the static testing user object
+interface HeaderProps {
+  onMenuClick: () => void;
+}
+
+const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
   const [query, setQuery] = React.useState('');
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = React.useState(false);
+
   const router = useRouter();
   const { user, logOut, googleSignIn } = useAuth();
+  const isMobile = useMobile();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (query.trim()) {
-      router.push(`/search/?q=${encodeURIComponent(query.trim())}`);
+      router.push(`/search?q=${encodeURIComponent(query.trim())}&page=1`);
+      if (isMobile) setMobileSearchOpen(false);
     }
   };
 
-  const handlekeypress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSearch(e as any);
-    }
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') handleSearch(e as any);
   };
 
   return (
-    <header className="flex items-center justify-between px-2 py-2 border-b bg-background/70 backdrop-blur-2xl z-10">
-      <div className="flex items-center gap-6">
-        <Button variant="ghost" size="icon">
-          <Menu className="w-6 h-6" />
-        </Button>
-        <Link href="/" className="flex items-center gap-1">
-          <Image
-            src="/logo.png"
-            height={30}
-            width={30}
-            alt="vince"
-            className="invert-0 dark:invert"
-          />
-          <span className="text-xl font-medium">Vynce</span>
-          <span className="text-xs text-muted-foreground ml-1">IN</span>
-        </Link>
-      </div>
-      <form
-        onSubmit={handleSearch}
-        className="flex items-center gap-2 flex-1 max-w-2xl mx-4"
-      >
-        <div className="flex flex-1">
-          <Input
-            type="search"
-            placeholder="Search"
-            value={query}
-            onKeyDown={handlekeypress}
-            onChange={({ target }) => setQuery(target.value)}
-            className="rounded-l-full border-r-0 focus-visible:ring-0"
-          />
-          <Button
-            type="submit"
-            variant="secondary"
-            className="rounded-r-full px-6 border border-l-0"
-          >
-            <Search className="w-5 h-5" />
+    <header className="flex items-center justify-between px-2 py-2 border-b bg-background/70 backdrop-blur-2xl z-50">
+      {/* LEFT: Menu + Logo */}
+      {!mobileSearchOpen && (
+        <div className="flex items-center gap-1 md:gap-6">
+          <Button variant="ghost" size="icon" onClick={onMenuClick}>
+            <Menu className="w-6 h-6" />
           </Button>
+          <Link href="/" className="flex items-center gap-1">
+            <Image
+              src="/logo.png"
+              height={30}
+              width={30}
+              alt="vince"
+              className="invert-0 dark:invert"
+            />
+            <span className="text-xl font-medium">Vynce</span>
+            <span className="text-xs text-muted-foreground ml-1">IN</span>
+          </Link>
         </div>
-        <Button variant="secondary" size="icon" className="rounded-full">
-          <Mic className="w-5 h-5" />
-        </Button>
-      </form>
-      <div className="flex items-center gap-2 pr-0 md:pr-10">
-        {!user && <ModeToggle />}
-        {user ? (
-          <>
+      )}
+
+      {/* CENTER: Search */}
+      {(!isMobile || mobileSearchOpen) && (
+        <form
+          onSubmit={handleSearch}
+          className="flex items-center gap-2 flex-1 max-w-2xl mx-4"
+        >
+          <div className="flex flex-1 items-center">
+            {/* X BUTTON ON MOBILE LEFT */}
+            {isMobile && mobileSearchOpen && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="mr-2"
+                onClick={() => setMobileSearchOpen(false)}
+              >
+                <X className="w-5 h-5" />
+              </Button>
+            )}
+
+            <Input
+              type="search"
+              placeholder="Search"
+              value={query}
+              onKeyDown={handleKeyPress}
+              onChange={({ target }) => setQuery(target.value)}
+              className="rounded-full flex-1 focus-visible:ring-0"
+              autoFocus={mobileSearchOpen}
+            />
+
+            <Button
+              type="submit"
+              variant="secondary"
+              className="ml-2 rounded-full px-6"
+            >
+              <Search className="w-5 h-5" />
+            </Button>
+          </div>
+        </form>
+      )}
+
+      {/* RIGHT: Icons / User */}
+      {!mobileSearchOpen && (
+        <div className="flex items-center gap-2 pr-0 md:pr-10">
+          {isMobile && (
+            <Button
+              variant="secondary"
+              size="icon"
+              onClick={() => setMobileSearchOpen(true)}
+            >
+              <Search className="w-5 h-5" />
+            </Button>
+          )}
+
+          {!isMobile && !user && <ModeToggle />}
+
+          {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -179,20 +215,21 @@ const Header = () => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          </>
-        ) : (
-          <>
-            <Button
-              variant="outline"
-              className="flex items-center gap-2"
-              onClick={googleSignIn}
-            >
-              <User className="w-4 h-4" />
-              Sign in
-            </Button>
-          </>
-        )}
-      </div>
+          ) : (
+            !isMobile && (
+              <Button
+                variant="outline"
+                className="flex items-center gap-2"
+                onClick={googleSignIn}
+              >
+                <User className="w-4 h-4" />
+                Sign in
+              </Button>
+            )
+          )}
+        </div>
+      )}
+
       <ChannelDialogue
         isopen={isDialogOpen}
         onclose={() => setIsDialogOpen(false)}

@@ -9,6 +9,7 @@ interface LikeContextType {
   setVideos: React.Dispatch<React.SetStateAction<Video[]>>;
   reactVideo: (id: string, like: boolean) => Promise<void>;
   fetchLikedVideos: () => Promise<void>;
+  isLikedVideo:(id:string)=>boolean
 }
 
 export const LikeContext = React.createContext<LikeContextType>({
@@ -17,6 +18,7 @@ export const LikeContext = React.createContext<LikeContextType>({
   setVideos: () => {},
   reactVideo: async () => {},
   fetchLikedVideos: async () => {},
+  isLikedVideo:()=>false,
 });
 
 export const LikeProvider: React.FC<ProviderProps> = ({ children }) => {
@@ -44,6 +46,14 @@ export const LikeProvider: React.FC<ProviderProps> = ({ children }) => {
       setLoading(false);
     }
   };
+
+  const isLikedVideo = (id: string) =>
+    videos.some((ch) => ch._id === id);
+
+  React.useEffect(() => {
+    fetchLikedVideos()
+  },[])
+
   return (
     <LikeContext.Provider
       value={{
@@ -52,6 +62,7 @@ export const LikeProvider: React.FC<ProviderProps> = ({ children }) => {
         videos,
         fetchLikedVideos,
         reactVideo,
+        isLikedVideo
       }}
     >
       {children}

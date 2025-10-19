@@ -5,7 +5,7 @@ import { getBaseUrl } from '@/lib';
 
 export const toggleReaction = async (req: APIReq, res: NextApiResponse) => {
   try {
-    const { videoId, like } = req.body; // like: true => like, false => dislike
+    const { videoId, like } = req.body; // like: true => like
     const userId = req.user?._id;
 
     if (!userId) return res.status(401).json({ message: 'Unauthorized' });
@@ -18,7 +18,6 @@ export const toggleReaction = async (req: APIReq, res: NextApiResponse) => {
     if (!video) return res.status(404).json({ message: 'Video not found' });
 
     const likes = video.likes;
-    const dislikes = video.dislikes;
 
     if (like) {
       // Toggle like
@@ -28,31 +27,14 @@ export const toggleReaction = async (req: APIReq, res: NextApiResponse) => {
         return res.status(200).json({
           message: 'Like removed!',
           likes: likes.length,
-          dislikes: dislikes.length,
         });
       }
       likes.push(userId);
-      if (dislikes.includes(userId)) dislikes.pull(userId); // remove opposite
-    } else {
-      // Toggle dislike
-      if (dislikes.includes(userId)) {
-        dislikes.pull(userId); // remove dislike
-        await video.save();
-        return res.status(200).json({
-          message: 'Dislike removed!',
-          likes: likes.length,
-          dislikes: dislikes.length,
-        });
-      }
-      dislikes.push(userId);
-      if (likes.includes(userId)) likes.pull(userId); // remove opposite
     }
-
     await video.save();
     return res.status(200).json({
-      message: like ? 'Like added!' : 'Dislike added!',
+      message: like ? 'Like added!' : 'Like remove!',
       likes: likes.length,
-      dislikes: dislikes.length,
     });
   } catch (err: any) {
     console.error('Toggle reaction error:', err);
@@ -75,6 +57,10 @@ export const getLikedVideos = async (req: APIReq, res: NextApiResponse) => {
     // Find all videos where this user has liked
     const likedVideos = await Video.find({ likes: req.user._id })
       .sort({ updatedAt: -1 })
+      .populate({
+        path: 'channel', // populate channel
+        select: 'name image', // only select name and image
+      })
       .lean();
 
     // If no liked videos
@@ -90,7 +76,6 @@ export const getLikedVideos = async (req: APIReq, res: NextApiResponse) => {
       ...video,
       filepath: `${host}/api/video/stream/${video._id}`,
       likes: video.likes.length,
-      dislikes: video.dislikes.length,
     }));
 
     return res.status(200).json({

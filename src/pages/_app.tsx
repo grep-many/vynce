@@ -4,8 +4,14 @@ import type { AppProps } from 'next/app';
 import Sidebar from '@/components/sidebar';
 import AppProvider from '@/context';
 import Head from 'next/head';
+import React from 'react';
+import useMobile from '@/hooks/useMobile';
 
 export default function App({ Component, pageProps }: AppProps) {
+  const isMobile = useMobile(768);
+  const [sidebarOpen, setSidebarOpen] = React.useState(true);
+  React.useEffect(() => setSidebarOpen(!isMobile), []);
+
   return (
     <>
       <Head>
@@ -14,13 +20,15 @@ export default function App({ Component, pageProps }: AppProps) {
       <AppProvider>
         <div className="h-screen flex flex-col">
           <header className="sticky top-0 z-50 bg-background border-b">
-            <Header />
+            <Header onMenuClick={() => setSidebarOpen((prev) => !prev)} />
           </header>
 
           <div className="flex flex-1 overflow-hidden">
-            <aside className="w-64 border-r overflow-y-auto bg-background">
-              <Sidebar />
-            </aside>
+            {/* Sidebar */}
+            <Sidebar
+              sidebarOpen={sidebarOpen}
+              onClose={() => setSidebarOpen(false)}
+            />
 
             <main className="flex-1 overflow-y-auto">
               <Component {...pageProps} />

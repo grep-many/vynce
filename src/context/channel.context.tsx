@@ -22,6 +22,7 @@ interface ChannelContextType {
   fetchChannel: (id: string) => Promise<void>;
   subscribe: (channelId: string) => Promise<void>;
   fetchSubscribedChannels: () => Promise<void>;
+  isChannelSubscribed: (id: string) => boolean;
 }
 
 export const ChannelContext = React.createContext<ChannelContextType>({
@@ -32,6 +33,7 @@ export const ChannelContext = React.createContext<ChannelContextType>({
   fetchChannel: async () => {},
   subscribe: async () => {},
   fetchSubscribedChannels: async () => {},
+  isChannelSubscribed: () => false,
 });
 
 interface ProviderProps {
@@ -82,6 +84,13 @@ export const ChannelProvider: React.FC<ProviderProps> = ({ children }) => {
     }
   };
 
+  const isChannelSubscribed = (id: string) =>
+    subscribedChannels.some((ch) => ch._id === id);
+
+  React.useEffect(() => {
+    fetchSubscribedChannels();
+  }, []);
+
   return (
     <ChannelContext.Provider
       value={{
@@ -92,6 +101,7 @@ export const ChannelProvider: React.FC<ProviderProps> = ({ children }) => {
         fetchChannel,
         subscribe,
         fetchSubscribedChannels,
+        isChannelSubscribed,
       }}
     >
       {children}

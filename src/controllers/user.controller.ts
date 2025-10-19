@@ -1,5 +1,4 @@
 import User from '@/models/user.model';
-import mongoose from 'mongoose';
 import { NextApiRequest, NextApiResponse } from 'next';
 import jwt from 'jsonwebtoken';
 import cookie from 'cookie';
@@ -54,37 +53,6 @@ export const login = async (req: APIReq, res: NextApiResponse) => {
     console.error(err);
     return res.status(500).json({
       message: 'Something went wrong while login!',
-    });
-  }
-};
-
-export const update = async (req: APIReq, res: NextApiResponse) => {
-  const { name, description } = req.body;
-
-  if (!mongoose.Types.ObjectId.isValid(req.user._id)) {
-    return res.status(401).json({ message: 'Invalid User' });
-  }
-
-  try {
-    const user = await User.findById(req.user._id);
-
-    if (!user) {
-      return res.status(404).json({
-        message: 'User not found!',
-      });
-    }
-
-    user.channel = { name, description };
-    await user.save();
-
-    return res.status(201).json({
-      message: 'Channel created successfully!',
-      user,
-    });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({
-      message: 'Something went wrong while creating channel!',
     });
   }
 };
