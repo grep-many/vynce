@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import uploadFile, { UploadedFile } from '@/lib/formidable';
-import Channel from "@/models/channel.model"
 import Video from '@/models/video.model';
 import User from '@/models/user.model';
 import { getBaseUrl } from '@/lib';
@@ -82,7 +81,7 @@ export const getVideo = async (req: NextApiRequest, res: NextApiResponse) => {
     // --- 1️⃣ Get a single video by ID ---
     if (id) {
       const videoId = Array.isArray(id) ? id[0] : id;
-      const video = await Video.findById(videoId)
+      const video:any = await Video.findById(videoId)
         .populate('channel', 'name image')
         .lean();
 

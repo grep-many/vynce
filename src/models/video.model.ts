@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import Channel from './channel.model';
 
 const videoSchema = new mongoose.Schema(
   {

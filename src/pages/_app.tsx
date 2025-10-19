@@ -6,7 +6,6 @@ import AppProvider from '@/context';
 import Head from 'next/head';
 import React from 'react';
 import useMobile from '@/hooks/useMobile';
-import Offline from '@/components/offline';
 
 export default function App({ Component, pageProps }: AppProps) {
   const isMobile = useMobile(1200);
