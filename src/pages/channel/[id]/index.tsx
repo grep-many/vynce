@@ -10,43 +10,22 @@ import React from 'react';
 const Channel = () => {
   const router = useRouter();
   const { id } = router.query;
-  const { user } = useAuth()
-  const { channel, fetchChannel } = useChannel();
-  
+  const { user } = useAuth();
+const { isChannelSubscribed, channel,subscribedChannels, fetchChannel } = useChannel();
+
+  const [subscribed, setSubscribed] = React.useState(false);
+
   React.useEffect(() => {
-    if (!id) return; // wait until id is available
-    fetchChannel(id as string);
+    if (id) {
+      fetchChannel(id as string);
+    }
   }, [id]);
-  
-  // TODO: remove below static videos object
-  const videos = [
-    {
-      _id: '1',
-      title: 'Amazing Nature Documentary',
-      filename: 'nature-doc.mp4',
-      filetype: 'video/mp4',
-      filepath: '/vdo.mp4',
-      filesize: '500MB',
-      channel: 'Nature Channel',
-      like: 1250,
-      views: 45000,
-      uploader: 'nature_lover',
-      createdAt: new Date().toISOString(),
-    },
-    {
-      _id: '2',
-      title: 'Cooking Tutorial: Perfect Pasta',
-      filename: 'pasta-tutorial.mp4',
-      filetype: 'video/mp4',
-      filepath: '/vdo.mp4',
-      filesize: '300MB',
-      channel: "Chef's Kitchen",
-      Like: 890,
-      views: 23000,
-      uploader: 'chef_master',
-      createdAt: new Date(Date.now() - 86400000).toISOString(),
-    },
-  ];
+
+  React.useEffect(() => {
+    if (id && subscribedChannels.length > 0) {
+      setSubscribed(isChannelSubscribed(id as string));
+    }
+  }, [id, subscribedChannels]);
 
   // channel=null
   if (!channel) {
@@ -55,7 +34,7 @@ const Channel = () => {
   return (
     <>
       <div className="max-w-full mx-auto">
-        <ChannelHeader channel={channel} user={user} />
+        <ChannelHeader subscribed={subscribed} channel={channel} user={user} />
         <ChannelTabs />
         <div className="p-4 pb-8">
           <VideoUploader channelId={id} channelName={channel?.name} />

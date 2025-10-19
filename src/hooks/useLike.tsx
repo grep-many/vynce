@@ -1,5 +1,5 @@
-import React from 'react';
 import { LikeContext } from '@/context/like.context';
+import React from 'react';
 
 const useLike = () => {
   const context = React.useContext(LikeContext);

@@ -13,7 +13,7 @@ const HistoryPage = () => {
 
   React.useEffect(() => {
     if (user) fetchHistory();
-  }, []);
+  }, [user]);
 
   return (
     <main className="p-6">
@@ -31,7 +31,7 @@ const HistoryPage = () => {
         <Content
           videos={videos}
           type="history"
-          user={{}} // pass user if needed
+          user={user} // pass user if needed
           onRemove={removeVideo}
           emptyMessage="You haven't watched any videos yet."
         />

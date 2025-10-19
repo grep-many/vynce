@@ -42,8 +42,14 @@ export const getHistory = async (req: APIReq, res: NextApiResponse) => {
 
     const history = await History.find({ user: userId })
       .sort({ watchedOn: -1 })
-      .populate('video')
-      .lean();
+      .populate({
+        path: 'video',
+        populate: {
+          path: 'channel',
+          select: 'name image', // only fetch name and image
+        },
+      })
+      .lean();  
 
     const videos = history.map((h: any) => {
       const video = h.video;
@@ -52,7 +58,6 @@ export const getHistory = async (req: APIReq, res: NextApiResponse) => {
         watchedOn: h.watchedOn,
         filepath: `${host}/api/video/stream/${video._id}`,
         likes: video.likes.length,
-        dislikes: video.dislikes.length,
       };
     });
 

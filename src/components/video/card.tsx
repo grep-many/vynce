@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import React from 'react';
-import { Avatar, AvatarFallback } from '../ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { extractInitials, formatViews, uploadTimeCal } from '@/lib';
 import VideoElement from './video-element';
 import { Button } from '../ui/button';
@@ -48,7 +48,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
       ? video.channel
       : { _id: '', name: video.channel || 'Unknown Channel' };
 
-  const channelName = channel.name;
+  const channelName = channel?.name;
   const channelId = channel._id;
   const initials = extractInitials(channelName);
 
@@ -110,14 +110,14 @@ const VideoCard: React.FC<VideoCardProps> = ({
   if (type === 'content') {
     return (
       <div
-        className="flex flex-col sm:flex-row gap-4 group rounded-lg p-2 hover:bg-secondary/20 transition-all"
+        className="flex flex-col lg:flex-row gap-4 group rounded-lg p-2 hover:bg-secondary/20 transition-all"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
         {/* Thumbnail */}
         <Link
           href={`/watch/${video?._id}`}
-          className="flex-shrink-0 w-full sm:w-80 aspect-video relative rounded-lg overflow-hidden bg-muted"
+          className="flex-shrink-0 w-full md:w-80 aspect-video relative rounded-lg overflow-hidden bg-muted"
         >
           <VideoElement
             videoRef={videoRef}
@@ -142,9 +142,10 @@ const VideoCard: React.FC<VideoCardProps> = ({
 
           <Link
             href={`/channel/${channelId}`}
-            className="flex items-center gap-2 mb-2 hover:text-blue-600"
+            className="flex items-center gap-2 mb-2 hover:text-foreground/90"
           >
             <Avatar className="w-6 h-6">
+              <AvatarImage src={channel?.image} alt={channel?.name} />
               <AvatarFallback className="text-xs">{initials}</AvatarFallback>
             </Avatar>
             <span className="text-sm">{channelName}</span>
@@ -191,7 +192,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
   return (
     <Link href={`/watch/${video?._id}`}>
       <div
-        className="w-full sm:max-w-sm cursor-pointer transition-transform duration-200 hover:scale-[1.02] hover:bg-secondary/20 p-2 rounded-md"
+        className=" w-full sm:max-w-sm cursor-pointer transition-transform duration-200 hover:scale-[1.02] hover:bg-secondary/20 p-2 rounded-md"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
@@ -199,6 +200,7 @@ const VideoCard: React.FC<VideoCardProps> = ({
         <div className="flex mt-3 space-x-3">
           <div className="flex-shrink-0 w-10 h-10">
             <Avatar>
+              <AvatarImage src={channel?.image} alt={channel?.name} />
               <AvatarFallback>{initials}</AvatarFallback>
             </Avatar>
           </div>

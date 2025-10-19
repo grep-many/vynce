@@ -20,7 +20,11 @@ interface VideoContextType {
   setUploadComplete: React.Dispatch<React.SetStateAction<boolean>>;
   setIsUploading: React.Dispatch<React.SetStateAction<boolean>>;
   setUploadProgress: React.Dispatch<React.SetStateAction<number>>;
-  fetchVideos: (page?: number) => Promise<void>;
+  fetchVideos: (args: {
+    page?: number;
+    search?: string;
+    replace?: boolean;
+  }) => Promise<void>;
   fetchVideo: (id: string) => Promise<void>;
   upload: (
     data: UploadVideoData,
@@ -58,7 +62,6 @@ export const VideoProvider: React.FC<ProviderProps> = ({ children }) => {
   const [uploadProgress, setUploadProgress] = React.useState(0);
   const router = useRouter();
 
-  // Merge new videos on top and remove duplicates
   const mergeVideos = (existing: Video[], incoming: Video[], max = 10) => {
     const combined = [...incoming, ...existing];
     const uniqueMap = new Map<string, Video>();
@@ -68,14 +71,23 @@ export const VideoProvider: React.FC<ProviderProps> = ({ children }) => {
     return Array.from(uniqueMap.values()).slice(0, max);
   };
 
-  // Fetch videos with pagination
-  const fetchVideos = async (newPage: number = 1) => {
+  const fetchVideos = async ({
+    page = 1,
+    search = '',
+    replace = false, // <-- new flag
+  }: {
+    page?: number;
+    search?: string;
+    replace?: boolean;
+  }) => {
     setLoading(true);
     try {
-      const res = await getVideos({ page: newPage });
-      setVideos((prev) => mergeVideos(prev, res.videos, 10));
+      const res = await getVideos({ page, search });
+      setVideos((prev) =>
+        replace ? res.videos : mergeVideos(prev, res.videos, 10),
+      );
       setTotal(res.total || 0);
-      setPage(newPage);
+      setPage(page);
     } catch (err: any) {
       toast.error(err.message || 'Failed to fetch videos');
       router.push('/');
@@ -84,7 +96,6 @@ export const VideoProvider: React.FC<ProviderProps> = ({ children }) => {
     }
   };
 
-  // Fetch single video by ID
   const fetchVideo = async (id: string) => {
     setLoading(true);
     try {
@@ -97,7 +108,6 @@ export const VideoProvider: React.FC<ProviderProps> = ({ children }) => {
     }
   };
 
-  // Upload video
   const upload = async (
     data: UploadVideoData,
     onUploadProgress: (percent: number) => void,
@@ -120,7 +130,7 @@ export const VideoProvider: React.FC<ProviderProps> = ({ children }) => {
   };
 
   React.useEffect(() => {
-    fetchVideos(1);
+    fetchVideos({ page: 1 }); // home feed
   }, []);
 
   return (

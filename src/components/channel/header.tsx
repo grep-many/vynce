@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Button } from '../ui/button';
 import { extractInitials } from '@/lib';
@@ -10,11 +10,12 @@ interface ChannelHeaderProps {
 }
 
 const ChannelHeader: React.FC<ChannelHeaderProps> = ({ channel, user }) => {
-  const [isSubscribed, setIsSubscribed] = useState(false);
-  const { subscribe } = useChannel();
+  const { subscribe, subscribedChannels, isChannelSubscribed } = useChannel();
+
+  const isSubscribed = isChannelSubscribed(channel?._id);
 
   const handleSubscribe = async () => {
-    setIsSubscribed(!isSubscribed);
+    if (!user) return;
     await subscribe(channel?._id);
   };
 

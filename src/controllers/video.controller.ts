@@ -93,30 +93,24 @@ export const getVideo = async (req: NextApiRequest, res: NextApiResponse) => {
           ...video,
           filepath: `${host}/api/video/stream/${video._id}`,
           likes: video.likes.length,
-          dislikes: video.dislikes.length,
         },
       });
     }
 
     // --- 2️⃣ Get multiple videos ---
-    let query = Video.find();
+    const query: any = {};
 
     if (channel) {
-      query = query
-        .where('channel')
-        .equals(Array.isArray(channel) ? channel[0] : channel);
+      query.channel = Array.isArray(channel) ? channel[0] : channel;
     }
 
     if (search) {
-      const regex = new RegExp(Array.isArray(search) ? search[0] : search, 'i');
-      query = query.or([{ title: regex }, { description: regex }]);
+      const searchValue = Array.isArray(search) ? search[0] : search;
+      query.$or = [
+        { title: { $regex: searchValue, $options: 'i' } },
+        { description: { $regex: searchValue, $options: 'i' } },
+      ];
     }
-
-    query = query
-      .populate('channel', 'name image')
-      .sort({ createdAt: -1 })
-      .lean();
-
     const pageNum = parseInt(Array.isArray(page) ? page[0] : page || '1', 10);
     const limitNum = parseInt(
       Array.isArray(limit) ? limit[0] : limit || '10',
@@ -124,14 +118,21 @@ export const getVideo = async (req: NextApiRequest, res: NextApiResponse) => {
     );
     const skip = (pageNum - 1) * limitNum;
 
-    const total = await Video.countDocuments(query.getFilter());
-    const videos = await query.skip(skip).limit(limitNum);
+    // 3️⃣ Fetch from MongoDB directly
+    const [total, videos] = await Promise.all([
+      Video.countDocuments(query),
+      Video.find(query)
+        .populate('channel', 'name image')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limitNum)
+        .lean(),
+    ]);
 
     const videosWithStream = videos.map((v) => ({
       ...v,
       filepath: `${host}/api/video/stream/${v._id}`,
       likes: v.likes.length,
-      dislikes: v.dislikes.length,
     }));
 
     return res.status(200).json({

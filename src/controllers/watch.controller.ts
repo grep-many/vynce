@@ -71,6 +71,10 @@ export const getWatchLaterVideos = async (
     // Find videos where user added to watch later
     const watchLaterVideos = await Video.find({ watchLater: req.user._id })
       .sort({ updatedAt: -1 })
+      .populate({
+        path: 'channel', // populate channel
+        select: 'name image', // only select name and image
+      })
       .lean();
 
     if (!watchLaterVideos || watchLaterVideos.length === 0) {
@@ -85,7 +89,6 @@ export const getWatchLaterVideos = async (
       ...video,
       filepath: `${host}/api/video/stream/${video._id}`,
       likes: video.likes.length,
-      dislikes: video.dislikes.length,
       watchLater: video.watchLater.length,
     }));
 
