@@ -3,6 +3,8 @@ import { useRouter } from 'next/router';
 import Loading from '@/components/loading';
 import SearchResult from '@/components/search-results';
 import NotFound from '@/components/not-found';
+import { getVideos } from '@/services/video.service';
+import { toast } from 'sonner';
 
 const Search: React.FC = () => {
   const router = useRouter();
@@ -16,13 +18,14 @@ const Search: React.FC = () => {
     const fetchResults = async () => {
       setLoading(true);
       try {
-        const res = await fetch(
-          `/api/search?q=${encodeURIComponent(q as string)}`,
-        );
-        const data = await res.json();
-        setResults(data.videos || []);
-      } catch (err) {
-        console.error(err);
+        const { videos } = await getVideos({
+          search: q as string,
+          page: 1,
+          limit: 8,
+        });
+        setResults(videos || []);
+      } catch (err:any) {
+        toast.error(err);
         setResults([]);
       } finally {
         setLoading(false);

@@ -28,9 +28,8 @@ const Home: React.FC = () => {
   const { videos, total, loading, fetchVideos, page } = useVideo();
 
   React.useEffect(() => {
-      fetchVideos({ page: 1, replace: true });
+    fetchVideos({ page: 1, replace: true });
   }, []);
-  
 
   if (loading) return <Loading />;
 
@@ -40,19 +39,21 @@ const Home: React.FC = () => {
   }
 
   return (
-    <main className="p-4">
-      <CategoryTab />
-      <React.Suspense fallback={<Loading />}>
-        <VideoGrid
-          videos={videos}
-          loading={loading}
-          total={total}
-          page={page}
-          onNext={() => fetchVideos({ page: page + 1 })}
-          onPrev={() => fetchVideos({ page: page - 1 })}
-        />
-      </React.Suspense>
-    </main>
+    <>
+      <main className="p-4">
+        <CategoryTab />
+        <React.Suspense fallback={<Loading />}>
+          <VideoGrid
+            videos={videos}
+            loading={loading}
+            total={total}
+            page={page}
+            onNext={() => fetchVideos({ page: page + 1 })}
+            onPrev={() => fetchVideos({ page: page - 1 })}
+          />
+        </React.Suspense>
+      </main>
+    </>
   );
 };
 

@@ -1,6 +1,5 @@
 // src/context/history.context.tsx
 import React from 'react';
-import { Video } from '@/types/video';
 import { toast } from 'sonner';
 import {
   getHistoryVideos,
@@ -10,7 +9,7 @@ import {
 } from '@/services/history.service';
 
 interface HistoryContextType {
-  videos: Video[];
+  videos: any[];
   loading: boolean;
   fetchHistory: () => Promise<void>;
   addVideoToHistory: (videoId: string) => Promise<void>;
@@ -32,7 +31,7 @@ interface ProviderProps {
 }
 
 export const HistoryProvider: React.FC<ProviderProps> = ({ children }) => {
-  const [videos, setVideos] = React.useState<Video[]>([]);
+  const [videos, setVideos] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(false);
 
   const fetchHistory = async () => {
