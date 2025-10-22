@@ -124,7 +124,7 @@ Then open [http://localhost:3000](http://localhost:3000)
 3. Set environment variables  
 4. Click **Deploy** 🚀  
 
-**Live Demo:** [https://vynce-six.vercel.app](https://vynce-six.vercel.app)
+**Live Demo:** [https://vynce-brown.vercel.app](https://vynce-brown.vercel.app)
 
 ---
 
