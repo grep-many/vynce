@@ -1,15 +1,14 @@
 import { likeVideo, getLikedVideos } from '@/services/like.service';
-import { Video } from '@/types/video';
 import React from 'react';
 import { toast } from 'sonner';
 
 interface LikeContextType {
-  videos: Video[];
+  videos: any[];
   loading: boolean;
-  setVideos: React.Dispatch<React.SetStateAction<Video[]>>;
-  reactVideo: (id: string, like: boolean) => Promise<void>;
+  setVideos: React.Dispatch<React.SetStateAction<any[]>>;
+  reactVideo: (id: string, like: boolean) => Promise<any>;
   fetchLikedVideos: () => Promise<void>;
-  isLikedVideo:(id:string)=>boolean
+  isLikedVideo: (id: string) => boolean;
 }
 
 export const LikeContext = React.createContext<LikeContextType>({
@@ -18,12 +17,12 @@ export const LikeContext = React.createContext<LikeContextType>({
   setVideos: () => {},
   reactVideo: async () => {},
   fetchLikedVideos: async () => {},
-  isLikedVideo:()=>false,
+  isLikedVideo: () => false,
 });
 
-export const LikeProvider: React.FC<ProviderProps> = ({ children }) => {
+export const LikeProvider: React.FC<any> = ({ children }) => {
   const [loading, setLoading] = React.useState(false);
-  const [videos, setVideos] = React.useState<Video[]>([]);
+  const [videos, setVideos] = React.useState<any[]>([]);
 
   const reactVideo = async (id: string, like: boolean) => {
     try {
@@ -47,12 +46,11 @@ export const LikeProvider: React.FC<ProviderProps> = ({ children }) => {
     }
   };
 
-  const isLikedVideo = (id: string) =>
-    videos.some((ch) => ch._id === id);
+  const isLikedVideo = (id: string) => videos.some((ch) => ch._id === id);
 
   React.useEffect(() => {
-    fetchLikedVideos()
-  },[])
+    fetchLikedVideos();
+  }, []);
 
   return (
     <LikeContext.Provider
@@ -62,7 +60,7 @@ export const LikeProvider: React.FC<ProviderProps> = ({ children }) => {
         videos,
         fetchLikedVideos,
         reactVideo,
-        isLikedVideo
+        isLikedVideo,
       }}
     >
       {children}

@@ -5,6 +5,7 @@ import Content from '@/components/video/content';
 import { Button } from '@/components/ui/button';
 import useAuth from '@/hooks/useAuth';
 import NotFound from '@/components/not-found';
+import Head from 'next/head';
 
 const HistoryPage: React.FC = () => {
   const router = useRouter();
@@ -42,27 +43,42 @@ const HistoryPage: React.FC = () => {
   }
 
   return (
-    <main className="p-6">
-      <div className="max-w-4xl">
-        <h1 className="text-2xl font-bold mb-4">Watch History</h1>
-        {videos.length > 0 && (
-          <Button
-            variant="destructive"
-            onClick={clearAll}
-            className="mb-4 px-4 py-2 rounded"
-          >
-            Clear All
-          </Button>
-        )}
-        <Content
-          videos={videos}
-          type="history"
-          user={user}
-          onRemove={removeVideo}
-          emptyMessage="" // emptyMessage not needed since we handle empty state with NotFound
+    <>
+      <Head>
+        <title>Watch History - Vynce</title>
+        <meta
+          name="description"
+          content="Revisit your recently watched videos on Vynce. Access your full watch history in one place."
         />
-      </div>
-    </main>
+        <meta property="og:title" content="Watch History - Vynce" />
+        <meta
+          property="og:description"
+          content="Explore your viewing journey and continue where you left off."
+        />
+        <meta property="og:image" content="/android-chrome-512x512.png" />
+        <meta property="og:type" content="website" />
+        <link rel="canonical" href="https://vynce.vercel.app/history" />
+      </Head>
+      <main className="p-6">
+        <div className="max-w-4xl">
+          <h1 className="text-2xl font-bold mb-4">Watch History</h1>
+          {videos.length > 0 && (
+            <Button
+              variant="destructive"
+              onClick={clearAll}
+              className="mb-4 px-4 py-2 rounded"
+            >
+              Clear All
+            </Button>
+          )}
+          <Content
+            videos={videos}
+            type="history"
+            onRemove={removeVideo}
+          />
+        </div>
+      </main>
+    </>
   );
 };
 

@@ -4,12 +4,11 @@ import {
   getWatchLaterVideos,
   toggleWatchLater,
 } from '@/services/watch.service';
-import { Video } from '@/types/video';
 
 interface WatchLaterContextType {
-  videos: Video[];
+  videos: any[];
   loading: boolean;
-  setVideos: React.Dispatch<React.SetStateAction<Video[]>>;
+  setVideos: React.Dispatch<React.SetStateAction<any[]>>;
   fetchWatchLaterVideos: () => Promise<void>;
   toggleWatchLater: (id: string) => Promise<void>;
 }
@@ -25,13 +24,13 @@ export const WatchContext = React.createContext<WatchLaterContextType>({
 export const WatchProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [videos, setVideos] = React.useState<Video[]>([]);
+  const [videos, setVideos] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(false);
 
   const fetchWatchLaterVideos = async () => {
     setLoading(true);
     try {
-      const {videos} = await getWatchLaterVideos();
+      const { videos } = await getWatchLaterVideos();
       setVideos(videos);
     } catch (err: any) {
       toast.error(err.message || 'Failed to fetch Watch Later videos');

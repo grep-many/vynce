@@ -1,9 +1,10 @@
 {
-  "name": "vynce",
-  "short_name": "vynce",
+  "name": "Vynce - Watch & Share Videos",
+  "short_name": "Vynce",
+  "description": "Vynce is a next-gen video sharing platform inspired by YouTube. Watch, upload, and share content effortlessly.",
   "icons": [
     {
-      "src": "favicon.ico",
+      "src": "/favicon.ico",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
     },
@@ -18,13 +19,25 @@
       "type": "image/png"
     }
   ],
-  "start_url": ".",
+  "start_url": "/",
   "display": "standalone",
   "theme_color": "transparent",
   "background_color": "transparent",
-  "background_color_media": {
-    "media": "(prefers-color-scheme: dark)",
-    "dark": "#000000",
-    "light": "#ffffff"
-  }
+  "orientation": "portrait",
+  "scope": "/",
+  "categories": ["entertainment", "video", "media"],
+  "shortcuts": [
+    {
+      "name": "Liked Videos",
+      "short_name": "Liked",
+      "url": "/liked",
+      "icons": [{ "src": "/icons/like.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Watch Later",
+      "short_name": "Later",
+      "url": "/watch/later",
+      "icons": [{ "src": "/icons/later.png", "sizes": "96x96" }]
+    }
+  ]
 }

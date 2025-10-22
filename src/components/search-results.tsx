@@ -45,6 +45,7 @@ const SearchPage = () => {
   return (
     <main className="p-4 max-w-5xl mx-auto">
       <VideoGrid
+        loading={loading}
         videos={videos}
         total={total}
         page={page}

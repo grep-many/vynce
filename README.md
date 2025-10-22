@@ -1,40 +1,135 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+# 🎥 Vynce – YouTube Clone (Next.js 15 + Firebase + MongoDB)
 
-## Getting Started
+Vynce is a **full-stack YouTube clone** built using **Next.js 15 (Page Router)**, **React 19**, **TypeScript**, and **MongoDB**.  
+It supports **video uploads**, **playback**, **authentication**, **subscriptions**, and **real-time interactions** with a modern, responsive UI.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 🚀 Features
+
+✅ **Authentication & JWT** – Secure Firebase Auth + JSON Web Tokens  
+📹 **Video Upload & Streaming** – Handled via Formidable and Firebase Storage  
+💬 **Comments & Reactions** – Real-time comment system using MongoDB  
+🎬 **Custom Video Player** – Responsive player with progress tracking  
+📺 **Channel System** – Subscribe/unsubscribe, view channel videos  
+🕒 **Watch Later & History** – Manage viewing preferences and activity  
+🔍 **Search & Pagination** – Find videos easily with server-side filtering  
+🎨 **Modern UI** – TailwindCSS v4 + Radix UI + Lucide Icons  
+🌙 **Dark/Light Themes** – Managed using `next-themes`  
+⚙️ **Full REST API** – Modular, structured API endpoints  
+
+---
+
+## 🧩 API Endpoints Overview
+
+| Method | Endpoint | Description |
+|--------|-----------|--------------|
+| **GET** | `/api/channel/:id` | Get channel by ID |
+| **POST** | `/api/channel` | Create a new channel |
+| **PUT** | `/api/channel` | Toggle subscribe/unsubscribe |
+| **GET** | `/api/channel/subscriptions` | Get subscribed channels |
+| **GET** | `/api/comment?id=` | Get comments for a video |
+| **POST** | `/api/comment` | Add a new comment |
+| **PUT** | `/api/comment` | Edit comment |
+| **DELETE** | `/api/comment` | Delete comment |
+| **GET** | `/api/video/stream/:id` | Stream video |
+| **GET** | `/api/video?page=1&limit=8&search=` | Get paginated videos |
+| **POST** | `/api/video` | Upload new video |
+| **GET/PUT** | `/api/video/react` | Get or react to videos |
+| **GET/PUT** | `/api/watch` | Watch later management |
+| **POST** | `/api/auth` | Authenticate user |
+| **GET/POST/PATCH/DELETE** | `/api/history` | Manage history (CRUD) |
+
+---
+
+## 🧰 Tech Stack
+
+| Category | Technology |
+|-----------|-------------|
+| **Frontend** | Next.js 15 (Page Router), React 19, TypeScript |
+| **Backend** | Next.js API Routes, Firebase, MongoDB (Mongoose) |
+| **Styling** | TailwindCSS v4, Radix UI, Lucide React Icons |
+| **Auth** | Firebase Auth + JWT |
+| **Uploads** | Formidable + Firebase Storage |
+| **Utilities** | Axios, clsx, class-variance-authority |
+| **Deployment** | Vercel |
+
+---
+
+## 📁 Project Structure
+
+```
+src/
+├── components/       # Reusable UI components
+├── context/          # Global app state (Auth, Video, Comments)
+├── controllers/      # API logic (Channel, Comment, Video, etc.)
+├── hooks/            # Custom React hooks
+├── lib/              # Firebase, JWT, Axios, utils
+├── middleware/       # Authentication & DB connections
+├── models/           # MongoDB (Mongoose) schemas
+├── pages/            # Next.js Page Router + API routes
+├── services/         # Axios service wrappers
+└── types/            # TypeScript definitions
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+## ⚙️ Getting Started
 
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+### 1️⃣ Clone the repository
+```bash
+git clone https://github.com/grep-many/vynce.git
+cd vynce
+```
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
+### 2️⃣ Install dependencies
+```bash
+npm install
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 3️⃣ Set up `.env.local`
+```env
+MONGO_URI=mongodb://localhost:27017/vynce
+BASE_URL=http://localhost:3000/api
+ACCESS_TOKEN_SECRET=your_jwt_secret
+NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_auth_domain
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_storage_bucket
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
+```
 
-## Learn More
+### 4️⃣ Run the development server
+```bash
+npm run dev
+```
+Then open [http://localhost:3000](http://localhost:3000)
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn-pages-router) - an interactive Next.js tutorial.
+## 🧠 Key Highlights
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Server-side rendering (SSR)** for better SEO & performance  
+- **Scalable modular structure** for maintainability  
+- **Context-based global state management**  
+- **Responsive & accessible UI** following modern design standards  
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🌍 Deployment (Vercel)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
+1. Push code to GitHub  
+2. Connect the repo to [Vercel](https://vercel.com)  
+3. Set environment variables  
+4. Click **Deploy** 🚀  
+
+**Live Demo:** [https://vynce-six.vercel.app](https://vynce-six.vercel.app)
+
+---
+
+## 💡 Inspiration
+
+Built with ❤️ to explore **video platforms, scalable APIs**, and **modern full-stack development** with **Next.js** and **Firebase**.
+
+---

@@ -1,11 +1,9 @@
 import React from 'react';
 import VideoCard from './card';
-import { Video } from '@/types/video';
 import { Button } from '../ui/button';
-import NotFound from '../not-found';
 
 interface VideoGridProps {
-  videos: Video[];
+  videos: any[];
   loading: boolean;
   total: number;
   page: number;
@@ -15,7 +13,6 @@ interface VideoGridProps {
 
 const VideoGrid: React.FC<VideoGridProps> = ({
   videos,
-  loading,
   total,
   page,
   onNext,

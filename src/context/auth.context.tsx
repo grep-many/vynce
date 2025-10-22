@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 //     image?: string;
 //   }) => Promise<void>;
 
-export const AuthContext = React.createContext<AuthContextType>({
+export const AuthContext = React.createContext<any>({
   user: null,
   loading: false,
   logIn: () => {},
@@ -20,11 +20,11 @@ export const AuthContext = React.createContext<AuthContextType>({
   googleSignIn: async () => {},
 });
 
-export const AuthProvider: React.FC<ProviderProps> = ({ children }) => {
+export const AuthProvider: React.FC<any> = ({ children }) => {
   const [user, setUser] = React.useState(null);
   const [loading, setLoading] = React.useState(false);
 
-  const logIn = (data: LoginData) => {
+  const logIn = (data: any) => {
     setLoading(true);
     setUser(data);
     localStorage.setItem('user', JSON.stringify(data));

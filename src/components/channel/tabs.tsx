@@ -26,7 +26,7 @@ const ChannelTabs: React.FC = () => {
 
   return (
     <div className="border-b border-border bg-background px-4">
-      <div className="flex gap-4 overflow-x-auto">
+      <div className="flex gap-4 overflow-x-auto scrollbar-hide">
         {tabs.map((tab) => (
           <Button
             key={tab.id}

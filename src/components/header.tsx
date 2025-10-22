@@ -71,7 +71,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
           <Button variant="ghost" size="icon" onClick={onMenuClick}>
             <Menu className="w-6 h-6" />
           </Button>
-          <Link href="/" className="flex items-center gap-1">
+          <button onClick={()=>router.push('/')} className="flex items-center gap-1 cursor-pointer select-none">
             <Image
               src="/logo.png"
               height={30}
@@ -81,7 +81,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
             />
             <span className="text-xl font-medium">Vynce</span>
             <span className="text-xs text-muted-foreground ml-1">IN</span>
-          </Link>
+          </button>
         </div>
       )}
 
@@ -89,7 +89,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
       {(!isMobile || mobileSearchOpen) && (
         <form
           onSubmit={handleSearch}
-          className="flex items-center gap-2 flex-1 max-w-2xl mx-4 ml-0"
+          className="flex items-center gap-2 flex-1 max-w-2xl mx-0 md:mx-4"
         >
           <div className="flex flex-1 items-center">
             {/* X BUTTON ON MOBILE LEFT */}
@@ -97,7 +97,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
               <Button
                 variant="ghost"
                 size="icon"
-                className="mr-2"
+                className="mr-1"
                 onClick={() => setMobileSearchOpen(false)}
               >
                 <X className="w-5 h-5" />
@@ -138,7 +138,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
             </Button>
           )}
 
-          {!isMobile && !user && <ModeToggle />}
+          { !user && <ModeToggle />}
 
           {user ? (
             <DropdownMenu>
@@ -224,7 +224,6 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            !isMobile && (
               <Button
                 variant="outline"
                 className="flex items-center gap-2"
@@ -233,7 +232,6 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
                 <User className="w-4 h-4" />
                 Sign in
               </Button>
-            )
           )}
         </div>
       )}

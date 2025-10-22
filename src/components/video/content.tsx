@@ -1,19 +1,13 @@
 import React from 'react';
 import VideoCard from './card';
-import { Video } from '@/types/video';
 
 type ContentProps = {
-  videos: Video[];
+  videos: any[];
   type: 'history' | 'liked' | 'watchlater';
   onRemove: (id: string) => void;
 };
 
-const Content: React.FC<ContentProps> = ({
-  videos,
-  type,
-  onRemove,
-}) => {
-
+const Content: React.FC<ContentProps> = ({ videos, type, onRemove }) => {
   return (
     <div className="space-y-4 p-4">
       <div className="space-y-4">

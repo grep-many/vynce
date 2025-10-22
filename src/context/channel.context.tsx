@@ -7,7 +7,7 @@ import {
 } from '@/services/channel.service';
 
 interface Channel {
-  videos: Video[];
+  videos: any[];
   _id: string;
   name: string;
   description?: string;
@@ -37,7 +37,7 @@ export const ChannelContext = React.createContext<ChannelContextType>({
   isChannelSubscribed: () => false,
 });
 
-interface ProviderProps {
+export interface ProviderProps {
   children: React.ReactNode;
 }
 

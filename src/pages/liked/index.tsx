@@ -4,6 +4,7 @@ import Content from '@/components/video/content';
 import useLike from '@/hooks/useLike';
 import useAuth from '@/hooks/useAuth';
 import NotFound from '@/components/not-found';
+import Head from 'next/head';
 
 const Liked: React.FC = () => {
   const router = useRouter();
@@ -46,18 +47,26 @@ const Liked: React.FC = () => {
   }
 
   return (
+    <>
+      <Head>
+              <title>Liked Videos - Vynce</title>
+              <meta
+                name="description"
+                content="See all your liked videos in one place on Vynce."
+              />
+              <link rel="canonical" href="https://vynce.vercel.app/liked" />
+            </Head>
     <main className="p-6">
       <div className="max-w-4xl">
         <h1 className="text-2xl font-bold mb-6">Liked Videos</h1>
         <Content
           videos={videos}
           type="liked"
-          user={user}
           onRemove={handleRemove}
-          emptyMessage="" // empty state handled with NotFound
-        />
+          />
       </div>
     </main>
+          </>
   );
 };
 

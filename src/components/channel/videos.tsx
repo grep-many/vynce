@@ -24,7 +24,7 @@ interface Video {
 }
 
 interface ChannelVideosProps {
-  videos: Video[];
+  videos: any[];
 }
 
 const ChannelVideos: React.FC<ChannelVideosProps> = ({ videos }) => {
