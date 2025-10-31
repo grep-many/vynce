@@ -4,12 +4,16 @@ import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
 
 export function ModeToggle() {
-  const { setTheme,systemTheme, theme } = useTheme();
-  const [mount, setMount] = React.useState(false);
-  const currentTheme = theme === 'system' ? systemTheme : theme;
+  const { setTheme, systemTheme, theme } = useTheme();
+  const [IsMounted, setIsMounted] = React.useState(false);
 
-  React.useEffect(() => setMount(true), []);
-  if (!mount) return null;
+  React.useEffect(() => setIsMounted(true), []);
+  const currentTheme = React.useMemo(
+    () => (theme === 'system' ? systemTheme : theme),
+    [theme, systemTheme],
+  );
+
+  if (!IsMounted) return null;
 
   return (
     <Button
@@ -18,7 +22,6 @@ export function ModeToggle() {
       onClick={() => setTheme(currentTheme === 'light' ? 'dark' : 'light')}
       className="relative"
     >
-      {/* Sun Icon */}
       <Sun
         className={`
         h-[1.2rem] w-[1.2rem] transition-all duration-300 absolute
@@ -29,7 +32,6 @@ export function ModeToggle() {
         }
       `}
       />
-      {/* Moon Icon */}
       <Moon
         className={`
         h-[1.2rem] w-[1.2rem] transition-all duration-300 absolute
