@@ -10,9 +10,9 @@ import NotFound from '@/components/not-found';
 import { GetServerSideProps } from 'next';
 import { getVideo, getVideos } from '@/services/video.service';
 
-interface Props{
-  video: any,
-  related:[any]
+interface Props {
+  video: any;
+  related: [any];
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
@@ -27,7 +27,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     return {
       props: {
         video: video,
-        related:videos
+        related: videos,
       },
     };
   } catch (err) {
@@ -40,16 +40,10 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   }
 };
 
-const Watch: React.FC<Props> = ({video,related}) => {
+const Watch: React.FC<Props> = ({ video, related }) => {
   const router = useRouter();
   const { user } = useAuth();
   const { addVideoToHistory } = useHistory();
-
-  React.useEffect(() => {
-    if (user&&video) {
-      addVideoToHistory(video?._id)
-    }
-  },[user,video])
 
   if (!video) {
     return (
@@ -62,6 +56,12 @@ const Watch: React.FC<Props> = ({video,related}) => {
       />
     );
   }
+
+  React.useEffect(() => {
+    if (user && video) {
+      if (video._id) addVideoToHistory(video?._id);
+    }
+  }, [user, video]);
 
   return (
     <div className="max-w-7xl mx-auto p-4">
