@@ -56,8 +56,8 @@ export const getHistory = async (req: APIReq, res: NextApiResponse) => {
       return {
         ...video,
         watchedOn: h.watchedOn,
-        filepath: `${host}/api/video/stream/${video._id}`,
-        likes: video.likes.length,
+        filepath: `${host}/api/video/stream/${video?._id}`,
+        likes: video?.likes.length,
       };
     });
 

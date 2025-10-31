@@ -9,6 +9,7 @@ import useChannel from '@/hooks/useChannel';
 import { toast } from 'sonner';
 import { formatViews, uploadTimeCal, extractInitials } from '@/lib';
 import Link from 'next/link';
+import NotFound from '../not-found';
 
 interface VideoInfoProps {
   video: any;
@@ -87,7 +88,7 @@ const VideoInfo: React.FC<VideoInfoProps> = ({ video }) => {
 
   // If channel data is not loaded yet
   if (!channel) {
-    return <div>Loading channel info...</div>;
+    return <NotFound message={'Channel not Found!'}    />;
   }
 
   const handleShare = async () => {
