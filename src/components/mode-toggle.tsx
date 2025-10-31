@@ -4,23 +4,42 @@ import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
 
 export function ModeToggle() {
-  const { setTheme, theme } = useTheme();
+  const { setTheme,systemTheme, theme } = useTheme();
   const [mount, setMount] = React.useState(false);
+  const currentTheme = theme === 'system' ? systemTheme : theme;
 
-  React.useEffect(() => setMount(true), [])
-if(!mount) return null
+  React.useEffect(() => setMount(true), []);
+  if (!mount) return null;
 
   return (
     <Button
       variant="outline"
       size="icon"
-      onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+      onClick={() => setTheme(currentTheme === 'light' ? 'dark' : 'light')}
+      className="relative"
     >
-      {theme === 'dark' ? (
-        <Moon className="text-foreground absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
-      ) : (
-        <Sun className="text-foreground h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-450" />
-      )}
+      {/* Sun Icon */}
+      <Sun
+        className={`
+        h-[1.2rem] w-[1.2rem] transition-all duration-300 absolute
+        ${
+          currentTheme === 'dark'
+            ? 'rotate-90 scale-0 opacity-0'
+            : 'rotate-0 scale-100 opacity-100'
+        }
+      `}
+      />
+      {/* Moon Icon */}
+      <Moon
+        className={`
+        h-[1.2rem] w-[1.2rem] transition-all duration-300 absolute
+        ${
+          currentTheme === 'dark'
+            ? 'rotate-0 scale-100 opacity-100'
+            : '-rotate-90 scale-0 opacity-0'
+        }
+      `}
+      />
       <span className="sr-only">Toggle theme</span>
     </Button>
   );
