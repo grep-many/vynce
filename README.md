@@ -124,12 +124,10 @@ Then open [http://localhost:3000](http://localhost:3000)
 3. Set environment variables  
 4. Click **Deploy** 🚀  
 
-**Live Demo:** [https://vynce-brown.vercel.app](https://vynce-brown.vercel.app)
+**Live Demo:** [here](https://vynce-brown.vercel.app)
 
 ---
 
 ## 💡 Inspiration
 
 Built with ❤️ to explore **video platforms, scalable APIs**, and **modern full-stack development** with **Next.js** and **Firebase**.
-
----
