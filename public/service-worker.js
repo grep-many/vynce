@@ -1,60 +1,69 @@
 const CACHE_NAME = 'vynce-cache-v1';
-const URLS_TO_CACHE = ['/']; // cache homepage or other static pages
+const STATIC_ASSETS = ['/'];
 
 self.addEventListener('install', (event) => {
+  self.skipWaiting(); // Activate immediately
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(URLS_TO_CACHE)),
-  );
-});
-
-self.addEventListener('fetch', (event) => {
-  const { request } = event;
-
-  // 🚫 Skip API calls and non-GET requests
-  if (
-    request.url.includes('/api') ||
-    request.url.includes('chrome-extension') ||
-    request.method !== 'GET'
-  ) {
-    return;
-  }
-
-  event.respondWith(
-    caches.match(request).then((cachedResponse) => {
-      if (cachedResponse) return cachedResponse;
-
-      return fetch(request)
-        .then((networkResponse) => {
-          // Dynamically cache static assets/pages only
-          const clonedResponse = networkResponse.clone();
-
-          if (
-            networkResponse.ok &&
-            !request.url.includes('/api') &&
-            request.url.startsWith(self.location.origin)
-          ) {
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(request, clonedResponse);
-            });
-          }
-
-          return networkResponse;
-        })
-        .catch(() => caches.match('/')); // fallback to cached homepage
-    }),
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS)),
   );
 });
 
 self.addEventListener('activate', (event) => {
-  const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
-    caches.keys().then((cacheNames) =>
-      Promise.all(
-        cacheNames.map((cacheName) => {
-          if (!cacheWhitelist.includes(cacheName))
-            return caches.delete(cacheName);
-        }),
+    caches
+      .keys()
+      .then((keys) =>
+        Promise.all(
+          keys
+            .filter((key) => key !== CACHE_NAME)
+            .map((oldKey) => caches.delete(oldKey)),
+        ),
       ),
+  );
+  self.clients.claim();
+});
+
+self.addEventListener('fetch', (event) => {
+  const req = event.request;
+
+  if (
+    req.method !== 'GET' ||
+    req.url.includes('/api') ||
+    req.url.includes('chrome-extension')
+  ) {
+    return;
+  }
+
+  // Network-first for pages
+  if (req.mode === 'navigate') {
+    event.respondWith(
+      fetch(req)
+        .then((res) => {
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(req, clone));
+          return res;
+        })
+        .catch(() =>
+          caches
+            .match(req)
+            .then((cached) => cached || caches.match('/offline.html')),
+        ),
+    );
+    return;
+  }
+
+  // Cache-first for static assets
+  event.respondWith(
+    caches.match(req).then(
+      (cached) =>
+        cached ||
+        fetch(req).then((res) => {
+          if (res.ok) {
+            const clone = res.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(req, clone));
+          }
+          return res;
+        }),
     ),
   );
 });
