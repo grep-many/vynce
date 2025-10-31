@@ -88,9 +88,9 @@ export const ChannelProvider: React.FC<ProviderProps> = ({ children }) => {
   const isChannelSubscribed = (id: string) =>
     subscribedChannels.some((ch) => ch._id === id);
 
-  React.useEffect(() => {
-    fetchSubscribedChannels();
-  }, []);
+  // React.useEffect(() => {
+  //   fetchSubscribedChannels();
+  // }, []);
 
   return (
     <ChannelContext.Provider

@@ -48,9 +48,9 @@ export const LikeProvider: React.FC<any> = ({ children }) => {
 
   const isLikedVideo = (id: string) => videos.some((ch) => ch._id === id);
 
-  React.useEffect(() => {
-    fetchLikedVideos();
-  }, []);
+  // React.useEffect(() => {
+  //   fetchLikedVideos();
+  // }, []);
 
   return (
     <LikeContext.Provider

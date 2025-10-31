@@ -6,21 +6,28 @@ import AppProvider from '@/context';
 import Head from 'next/head';
 import React from 'react';
 import useMobile from '@/hooks/useMobile';
+import { toast } from 'sonner'; // ✅ import your toast utility
 
 export default function App({ Component, pageProps }: AppProps) {
   const isMobile = useMobile(1200);
   const [sidebarOpen, setSidebarOpen] = React.useState(true);
   const [isOnline, setIsOnline] = React.useState(true);
 
-  // Adjust sidebar based on mobile
+  // Adjust sidebar automatically for mobile
   React.useEffect(() => setSidebarOpen(!isMobile), [isMobile]);
 
-  // Online/offline detection
+  // Detect online/offline state
   React.useEffect(() => {
     setIsOnline(navigator.onLine);
 
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
+    const handleOnline = () => {
+      setIsOnline(true);
+      toast.success('Back online! ✅');
+    };
+    const handleOffline = () => {
+      setIsOnline(false);
+      toast.error('You’re offline — showing cached content ⚠️');
+    };
 
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
@@ -31,17 +38,46 @@ export default function App({ Component, pageProps }: AppProps) {
     };
   }, []);
 
-  // Register Service Worker for caching pages
+  // Register and handle Service Worker updates
   React.useEffect(() => {
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker
-        .register('/service-worker.js')
-        .then((registration) =>
-          console.log('Service Worker registered:', registration),
-        )
-        .catch((error) =>
-          console.error('Service Worker registration failed:', error),
-        );
+      window.addEventListener('load', () => {
+        navigator.serviceWorker
+          .register('/service-worker.js')
+          .then((registration) => {
+            toast.success('App is ready for offline use ⚡');
+
+            // If there’s an updated SW waiting, activate it immediately
+            if (registration.waiting) {
+              registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+              toast.info('New update available! Reloading...');
+              window.location.reload();
+            }
+
+            registration.addEventListener('updatefound', () => {
+              const newWorker = registration.installing;
+              if (newWorker) {
+                newWorker.addEventListener('statechange', () => {
+                  if (
+                    newWorker.state === 'installed' &&
+                    navigator.serviceWorker.controller
+                  ) {
+                    toast.info('New version installed! Reloading...');
+                    window.location.reload();
+                  }
+                });
+              }
+            });
+          })
+          .catch(() => {
+            toast.error('Failed to register Service Worker ❌');
+          });
+
+        // Reload when SW takes control
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          window.location.reload();
+        });
+      });
     }
   }, []);
 
@@ -62,15 +98,14 @@ export default function App({ Component, pageProps }: AppProps) {
         <meta property="og:image" content="/android-chrome-512x512.png" />
         <meta property="og:url" content="https://vynce.vercel.app/" />
         <link rel="canonical" href="https://vynce.vercel.app/" />
-    </Head>
+      </Head>
+
       <AppProvider>
         <div className="h-screen flex flex-col">
-          {/* Header */}
           <header className="sticky top-0 z-50 bg-background border-b">
             <Header onMenuClick={() => setSidebarOpen((prev) => !prev)} />
           </header>
 
-          {/* Main layout */}
           <div className="flex flex-1 overflow-hidden">
             <Sidebar
               sidebarOpen={sidebarOpen}
@@ -79,7 +114,7 @@ export default function App({ Component, pageProps }: AppProps) {
 
             <main className="flex-1 overflow-y-auto">
               {!isOnline && (
-                <div className="bg-destructive text-center py-2">
+                <div className="bg-red-800 text-center text-white">
                   You are offline — showing cached content
                 </div>
               )}
