@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - refactor/uploads
   pull_request:
     branches-ignore:
       - main
@@ -63,5 +62,4 @@ jobs:
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           working-directory: ./
-          vercel-args: |
-            ${{ github.ref == 'refs/heads/main' && '--prod' || '--prebuilt' }}
+          vercel-args: ${{ github.ref == 'refs/heads/main' && '--prod' || '' }}
