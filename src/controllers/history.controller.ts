@@ -2,7 +2,6 @@ import { NextApiResponse } from 'next';
 import { APIReq } from './user.controller';
 import History from '@/models/history.model';
 import Video from '@/models/video.model';
-import { getBaseUrl } from '@/lib';
 
 // Add a video to history
 export const addToHistory = async (req: APIReq, res: NextApiResponse) => {
@@ -38,7 +37,6 @@ export const getHistory = async (req: APIReq, res: NextApiResponse) => {
     const userId = req.user?._id;
     if (!userId) return res.status(401).json({ message: 'Unauthorized' });
 
-    const host = getBaseUrl(req);
 
     const history = await History.find({ user: userId })
       .sort({ watchedOn: -1 })
@@ -56,7 +54,7 @@ export const getHistory = async (req: APIReq, res: NextApiResponse) => {
       return {
         ...video,
         watchedOn: h.watchedOn,
-        filepath: `${host}/api/video/stream/${video?._id}`,
+        filepath: h.video.filepath,
         likes: video?.likes.length,
       };
     });
