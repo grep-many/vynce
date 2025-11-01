@@ -17,52 +17,60 @@ interface VideoInfoProps {
 
 const VideoInfo: React.FC<VideoInfoProps> = ({ video }) => {
   const { user } = useAuth();
-  const { reactVideo, isLikedVideo, videos } = useLike();
+  const { reactVideo, isLikedVideo, likedVideos, fetchLikedVideos } = useLike();
   const { toggleWatchLater } = useWatch();
   const {
     channel,
     fetchChannel,
-    subscribedChannels,
     isChannelSubscribed,
     subscribe,
+    subscribedChannels,
+    fetchSubscribedChannels,
   } = useChannel();
 
   const [likes, setLikes] = React.useState(video.likes || 0);
-  const [isLiked, setIsLiked] = React.useState(false);
   const [showFullDescription, setShowFullDescription] = React.useState(false);
-  const [isSubscribed, setIsSubscribed] = React.useState(false);
+  const [liked, setLiked] = React.useState(false);
+  const [subscribed, setSubscribed] = React.useState(false);
 
-  // Fetch channel data when video changes
+  // 🟢 Fetch channel + ensure subscriptions are loaded
   React.useEffect(() => {
     if (video?.channel?._id) {
       fetchChannel(video.channel._id);
     }
-  }, [video?.channel?._id]);
-
-  // Update subscription state when channel or subscribedChannels change
-  React.useEffect(() => {
-    if (channel?._id) {
-      setIsSubscribed(isChannelSubscribed(channel._id));
+    if (user) {
+      fetchSubscribedChannels();
+      fetchLikedVideos();
     }
-  }, [channel, subscribedChannels]);
+  }, [video?.channel?._id, user]);
 
-  // Update like state when video or liked videos change
+  // 🟢 Sync liked state
   React.useEffect(() => {
-    if (video?._id && videos.length > 0) {
-      setIsLiked(isLikedVideo(video._id));
-    }
-    setLikes(video.likes || 0);
-  }, [video?._id, videos]);
+    if (!video?._id) return;
+    const likedState = isLikedVideo(video._id);
+    setLiked((prev) => (prev !== likedState ? likedState : prev));
+  }, [video?._id, likedVideos, user]);
 
+  // 🟢 Sync subscribed state
+  React.useEffect(() => {
+    if (!video?.channel?._id) return;
+    const subscribedState = isChannelSubscribed(video.channel._id);
+    setSubscribed((prev) =>
+      prev !== subscribedState ? subscribedState : prev,
+    );
+  }, [video?.channel?._id, subscribedChannels, user]);
+
+  if (!channel) {
+    return <NotFound message="Channel not found!" />;
+  }
+
+  // 🟢 Handlers
   const handleReaction = async (like: boolean) => {
-    if (!user) {
-      toast.warning('Signin to like the video!');
-      return;
-    }
-    const { likes: updatedLikes } = await reactVideo(video._id, true);
+    if (!user) return toast.warning('Signin to like the video!');
+    const { likes: updatedLikes } = await reactVideo(video._id, like);
     if (updatedLikes !== undefined) {
       setLikes(updatedLikes);
-      setIsLiked(like);
+      setLiked(like);
     }
   };
 
@@ -71,52 +79,34 @@ const VideoInfo: React.FC<VideoInfoProps> = ({ video }) => {
   };
 
   const handleSubscribe = async () => {
-    if (!user) {
-      toast.warning('Signin to subscribe!');
-      return;
-    }
+    if (!user) return toast.warning('Signin to subscribe!');
+    await subscribe(video.channel._id);
+    // toggle locally for instant UI feedback
+    setSubscribed((prev) => !prev);
+  };
 
-    await subscribe(video?.channel?._id);
-    // Sync with subscription context instead of toggling blindly
-    setIsSubscribed(isChannelSubscribed(video?.channel?._id));
+  const handleShare = async () => {
+    const videoUrl = `${window.location.origin}/watch/${video._id}`;
+    if (navigator.share) {
+      await navigator.share({
+        title: video.title,
+        text: `Check out this video: ${video.title}`,
+        url: videoUrl,
+      });
+    } else {
+      try {
+        await navigator.clipboard.writeText(videoUrl);
+        toast.success('Video link copied to clipboard!');
+      } catch {
+        toast.error('Failed to copy link');
+      }
+    }
   };
 
   const truncatedDescription =
     video.description.length > 150
       ? video.description.slice(0, 150) + '...'
       : video.description;
-
-  // If channel data is not loaded yet
-  if (!channel) {
-    return <NotFound message={'Channel not Found!'}    />;
-  }
-
-  const handleShare = async () => {
-    const videoUrl = `${window.location.origin}/watch/${video._id}`;
-
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: video.title,
-          text: `Check out this video: ${video.title}`,
-          url: videoUrl,
-        });
-        toast.success('Video shared!');
-      } catch (err) {
-        console.error('Share failed', err);
-        toast.error('Share cancelled or failed');
-      }
-    } else {
-      // Fallback: copy to clipboard
-      try {
-        await navigator.clipboard.writeText(videoUrl);
-        toast.success('Video link copied to clipboard!');
-      } catch (err) {
-        console.error('Copy failed', err);
-        toast.error('Failed to copy link');
-      }
-    }
-  };
 
   return (
     <div className="space-y-4">
@@ -138,7 +128,7 @@ const VideoInfo: React.FC<VideoInfoProps> = ({ video }) => {
         )}
       </div>
 
-      {/* Channel info */}
+      {/* Channel Info */}
       <div className="flex items-center justify-between py-2">
         <div className="flex items-center gap-4">
           <Avatar className="w-10 h-10">
@@ -161,10 +151,10 @@ const VideoInfo: React.FC<VideoInfoProps> = ({ video }) => {
         </div>
 
         <Button
-          variant={isSubscribed ? 'secondary' : 'destructive'}
+          variant={subscribed ? 'secondary' : 'destructive'}
           onClick={handleSubscribe}
         >
-          {isSubscribed ? 'Subscribed' : 'Subscribe'}
+          {subscribed ? 'Subscribed' : 'Subscribe'}
         </Button>
       </div>
 
@@ -174,10 +164,10 @@ const VideoInfo: React.FC<VideoInfoProps> = ({ video }) => {
           variant="outline"
           size="sm"
           className="flex items-center gap-1"
-          onClick={() => handleReaction(!isLiked)} // toggle like/unlike
+          onClick={() => handleReaction(!liked)}
         >
           <ThumbsUp
-            className={`w-5 h-5 ${isLiked ? 'fill-accent-foreground' : ''}`}
+            className={`w-5 h-5 ${liked ? 'fill-accent-foreground' : ''}`}
           />
           {likes.toLocaleString()}
         </Button>

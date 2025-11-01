@@ -8,12 +8,13 @@ import Head from 'next/head';
 
 const Liked: React.FC = () => {
   const router = useRouter();
-  const { videos, setVideos, fetchLikedVideos, reactVideo } = useLike();
+  const { likedVideos, setLikedVideos, fetchLikedVideos, reactVideo } =
+    useLike();
   const { user } = useAuth();
 
   const handleRemove = async (id: string) => {
     await reactVideo(id, true);
-    setVideos((prev) => prev.filter((v) => v._id !== id));
+    setLikedVideos((prev) => prev.filter((v) => v._id !== id));
   };
 
   React.useEffect(() => {
@@ -34,7 +35,7 @@ const Liked: React.FC = () => {
   }
 
   // No liked videos
-  if (videos.length === 0) {
+  if (likedVideos.length === 0) {
     return (
       <NotFound
         message="You haven't liked any videos yet."
@@ -49,24 +50,20 @@ const Liked: React.FC = () => {
   return (
     <>
       <Head>
-              <title>Liked Videos - Vynce</title>
-              <meta
-                name="description"
-                content="See all your liked videos in one place on Vynce."
-              />
-              <link rel="canonical" href="https://vynce.vercel.app/liked" />
-            </Head>
-    <main className="p-6">
-      <div className="max-w-4xl">
-        <h1 className="text-2xl font-bold mb-6">Liked Videos</h1>
-        <Content
-          videos={videos}
-          type="liked"
-          onRemove={handleRemove}
-          />
-      </div>
-    </main>
-          </>
+        <title>Liked Videos - Vynce</title>
+        <meta
+          name="description"
+          content="See all your liked videos in one place on Vynce."
+        />
+        <link rel="canonical" href="https://vynce.vercel.app/liked" />
+      </Head>
+      <main className="p-6">
+        <div className="max-w-4xl">
+          <h1 className="text-2xl font-bold mb-6">Liked Videos</h1>
+          <Content videos={likedVideos} type="liked" onRemove={handleRemove} />
+        </div>
+      </main>
+    </>
   );
 };
 

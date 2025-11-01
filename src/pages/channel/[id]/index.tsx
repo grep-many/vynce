@@ -20,6 +20,7 @@ const Channel: React.FC = () => {
     channel,
     subscribedChannels,
     fetchChannel,
+    fetchSubscribedChannels
   } = useChannel();
 
   const [subscribed, setSubscribed] = React.useState<boolean>(false);
@@ -30,17 +31,18 @@ const Channel: React.FC = () => {
   // Fetch channel data
   React.useEffect(() => {
     if (id) fetchChannel(id as string);
-  }, [id]);
+    if(user) fetchSubscribedChannels()
+  }, [id,user]);
 
   // Update subscription state safely
   React.useEffect(() => {
-    if (!id) return;
+    if (!user) return;
 
     const subscribedState = isChannelSubscribed(id as string);
     setSubscribed((prev) =>
       prev !== subscribedState ? subscribedState : prev,
     );
-  }, [id, subscribedChannels]);
+  }, [user,subscribedChannels]);
 
   if (loading) return <Loading />;
 

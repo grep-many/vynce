@@ -96,7 +96,7 @@ const Subscriptions: React.FC = () => {
                     {channel.description || 'No description available'}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {channel.subscribers || 0} subscribers
+                    {channel.subscribers?.length || 0} subscribers
                   </p>
                 </div>
 
