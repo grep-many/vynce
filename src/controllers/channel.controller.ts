@@ -3,7 +3,6 @@ import { APIReq } from './user.controller';
 import Channel from '@/models/channel.model';
 import User from '@/models/user.model';
 import Video from '@/models/video.model';
-import { getBaseUrl } from '@/lib';
 
 // Create or update a channel
 export const createOrUpdateChannel = async (
@@ -126,7 +125,6 @@ export const getChannelById = async (req: APIReq, res: NextApiResponse) => {
   if (!id) return res.status(400).json({ message: 'Channel ID is required' });
 
   try {
-    const host = getBaseUrl(req); // get base URL for streaming
 
     // 1️⃣ Fetch channel
     const channel = await Channel.findById(id)
@@ -143,7 +141,7 @@ export const getChannelById = async (req: APIReq, res: NextApiResponse) => {
     // 3️⃣ Format videos like getVideo API
     const videos = videosRaw.map((v) => ({
       ...v,
-      filepath: `${host}/api/video/stream/${v._id}`,
+      filepath: v.filepath,
       likes: v.likes.length,
     }));
 

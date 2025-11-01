@@ -1,7 +1,6 @@
 import { NextApiResponse } from 'next';
 import { APIReq } from './user.controller';
 import Video from '@/models/video.model';
-import { getBaseUrl } from '@/lib';
 
 /**
  * Toggle Watch Later
@@ -66,7 +65,6 @@ export const getWatchLaterVideos = async (
   }
 
   try {
-    const host = getBaseUrl(req);
 
     // Find videos where user added to watch later
     const watchLaterVideos = await Video.find({ watchLater: req.user._id })
@@ -87,7 +85,7 @@ export const getWatchLaterVideos = async (
     // Format videos like in getVideo()
     const videosWithStream = watchLaterVideos.map((video: any) => ({
       ...video,
-      filepath: `${host}/api/video/stream/${video._id}`,
+      filepath: video.filepath,
       likes: video.likes.length,
       watchLater: video.watchLater.length,
     }));
