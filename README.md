@@ -8,7 +8,7 @@ It supports **video uploads**, **playback**, **authentication**, **subscriptions
 ## 🚀 Features
 
 ✅ **Authentication & JWT** – Secure Firebase Auth + JSON Web Tokens  
-📹 **Video Upload & Streaming** – Handled via Formidable and Firebase Storage  
+📹 **Video Upload & Streaming** – Handled via vercel blob  
 💬 **Comments & Reactions** – Real-time comment system using MongoDB  
 🎬 **Custom Video Player** – Responsive player with progress tracking  
 📺 **Channel System** – Subscribe/unsubscribe, view channel videos  
@@ -50,7 +50,7 @@ It supports **video uploads**, **playback**, **authentication**, **subscriptions
 | **Backend** | Next.js API Routes, Firebase, MongoDB (Mongoose) |
 | **Styling** | TailwindCSS v4, Radix UI, Lucide React Icons |
 | **Auth** | Firebase Auth + JWT |
-| **Uploads** | Formidable + Firebase Storage |
+| **Uploads** | Vercel Blob |
 | **Utilities** | Axios, clsx, class-variance-authority |
 | **Deployment** | Vercel |
 
