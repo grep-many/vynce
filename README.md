@@ -32,7 +32,6 @@ It supports **video uploads**, **playback**, **authentication**, **subscriptions
 | **POST** | `/api/comment` | Add a new comment |
 | **PUT** | `/api/comment` | Edit comment |
 | **DELETE** | `/api/comment` | Delete comment |
-| **GET** | `/api/video/stream/:id` | Stream video |
 | **GET** | `/api/video?page=1&limit=8&search=` | Get paginated videos |
 | **POST** | `/api/video` | Upload new video |
 | **GET/PUT** | `/api/video/react` | Get or react to videos |

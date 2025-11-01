@@ -20,7 +20,7 @@ export const uploadVideo = async (
 ) => {
   try {
     const formData = new FormData();
-    formData.append('video', data.file); // key MUST match server: files.video
+    formData.append('file', data.file); // key MUST match server: files.video
     formData.append('title', data.title);
     formData.append('description', data.description);
 

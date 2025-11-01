@@ -86,7 +86,7 @@ const Channel: React.FC = () => {
       {/* Video Uploader */}
       {isOwner && (
         <div className="p-4 pb-8">
-          <VideoUploader channelId={id as string} channelName={channel.name} />
+          <VideoUploader />
         </div>
       )}
 
