@@ -3,9 +3,9 @@ import React from 'react';
 import { toast } from 'sonner';
 
 interface LikeContextType {
-  videos: any[];
+  likedVideos: any[];
   loading: boolean;
-  setVideos: React.Dispatch<React.SetStateAction<any[]>>;
+  setLikedVideos: React.Dispatch<React.SetStateAction<any[]>>;
   reactVideo: (id: string, like: boolean) => Promise<any>;
   fetchLikedVideos: () => Promise<void>;
   isLikedVideo: (id: string) => boolean;
@@ -13,8 +13,8 @@ interface LikeContextType {
 
 export const LikeContext = React.createContext<LikeContextType>({
   loading: false,
-  videos: [],
-  setVideos: () => {},
+  likedVideos: [],
+  setLikedVideos: () => {},
   reactVideo: async () => {},
   fetchLikedVideos: async () => {},
   isLikedVideo: () => false,
@@ -22,7 +22,7 @@ export const LikeContext = React.createContext<LikeContextType>({
 
 export const LikeProvider: React.FC<any> = ({ children }) => {
   const [loading, setLoading] = React.useState(false);
-  const [videos, setVideos] = React.useState<any[]>([]);
+  const [likedVideos, setLikedVideos] = React.useState<any[]>([]);
 
   const reactVideo = async (id: string, like: boolean) => {
     try {
@@ -38,7 +38,7 @@ export const LikeProvider: React.FC<any> = ({ children }) => {
     setLoading(true);
     try {
       const res = await getLikedVideos();
-      setVideos(res.videos);
+      setLikedVideos(res.videos);
     } catch (err: any) {
       toast.error(err.message || 'Failed to fetch videos');
     } finally {
@@ -46,7 +46,7 @@ export const LikeProvider: React.FC<any> = ({ children }) => {
     }
   };
 
-  const isLikedVideo = (id: string) => videos.some((ch) => ch._id === id);
+  const isLikedVideo = (id: string) => likedVideos.some((ch) => ch._id === id);
 
   // React.useEffect(() => {
   //   fetchLikedVideos();
@@ -56,8 +56,8 @@ export const LikeProvider: React.FC<any> = ({ children }) => {
     <LikeContext.Provider
       value={{
         loading,
-        setVideos,
-        videos,
+        setLikedVideos,
+        likedVideos,
         fetchLikedVideos,
         reactVideo,
         isLikedVideo,
