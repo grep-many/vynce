@@ -1,7 +1,6 @@
 import { NextApiResponse } from 'next';
 import { APIReq } from './user.controller';
 import Video from '@/models/video.model';
-import { getBaseUrl } from '@/lib';
 
 export const toggleReaction = async (req: APIReq, res: NextApiResponse) => {
   try {
@@ -52,7 +51,6 @@ export const getLikedVideos = async (req: APIReq, res: NextApiResponse) => {
   }
 
   try {
-    const host = getBaseUrl(req);
 
     // Find all videos where this user has liked
     const likedVideos = await Video.find({ likes: req.user._id })
@@ -74,7 +72,7 @@ export const getLikedVideos = async (req: APIReq, res: NextApiResponse) => {
     // Transform each video similar to getVideo
     const videosWithStream = likedVideos.map((video: any) => ({
       ...video,
-      filepath: `${host}/api/video/stream/${video._id}`,
+      filepath: video.filepath,
       likes: video.likes.length,
     }));
 

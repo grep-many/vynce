@@ -1,60 +1,19 @@
-import formidable, { File, Fields, Files } from 'formidable';
+import formidable from 'formidable' ;
 import type { NextApiRequest } from 'next';
 
-export interface UploadedFile {
-  filename: string;
-  filepath: string;
-  filetype: string;
-  filesize: number;
-}
-
-export interface VideoFields {
-  title?: string;
-  description?: string;
-  [key: string]: any;
-}
-
-const uploadFile = async (
+export const parseForm = (
   req: NextApiRequest,
-): Promise<{ fields: VideoFields; file: UploadedFile }> => {
-  const form = formidable({
-    multiples: false,
-    uploadDir: './uploads',
-    keepExtensions: true,
-    filename: (originalName: string) => {
-      // Use originalName provided by formidable
-      return `${new Date()
-        .toISOString()
-        .replace(/:/g, '-')}-${originalName}.mp4`;
-    },
-  });
-
+): Promise<{ fields: formidable.Fields; files: formidable.Files }> => {
   return new Promise((resolve, reject) => {
-    form.parse(req, (err: any, fields?: Fields, files?: Files) => {
-      if (err) return reject(err);
+    const form = formidable({
+      multiples: false,
+      maxFileSize: 4 * 1024 * 1024, // 100MB limit (local ok)
+      keepExtensions: true,
+    });
 
-      const parsedFields: VideoFields = (fields || {}) as VideoFields;
-
-      if (!files) return reject(new Error('No file uploaded'));
-
-      const fileField = files.video;
-      if (!fileField) return reject(new Error('No file uploaded'));
-
-      const file: File = Array.isArray(fileField) ? fileField[0] : fileField;
-
-      if (!file.mimetype || file.mimetype !== 'video/mp4')
-        return reject(new Error('Only .mp4 files allowed'));
-
-      const uploadedFile: UploadedFile = {
-        filename: file.newFilename || '',
-        filepath: `uploads/${file.newFilename}`,
-        filetype: file.mimetype,
-        filesize: file.size,
-      };
-
-      resolve({ fields: parsedFields, file: uploadedFile });
+    form.parse(req, (err, fields, files) => {
+      if (err) reject(err);
+      else resolve({ fields, files });
     });
   });
 };
-
-export default uploadFile;

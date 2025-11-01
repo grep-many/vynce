@@ -8,7 +8,7 @@ import { Textarea } from '../ui/textarea';
 import useVideo from '@/hooks/useVideo';
 import { useRouter } from 'next/router';
 
-const VideoUploader = ({ id, name }: any) => {
+const VideoUploader = () => {
   const {
     uploadComplete,
     isUploading,
@@ -61,10 +61,6 @@ const VideoUploader = ({ id, name }: any) => {
 
   const handleUpload = async () => {
     if (!videoFile) return;
-    // const data = new FormData();
-    // data.append('file', videoFile);
-    // data.append('title', formData.title);
-    // data.append('description', formData.description);
     await upload({...formData,file:videoFile},
       (percent:number) => setUploadProgress(percent),
     ).then((video) => {
@@ -85,17 +81,17 @@ const VideoUploader = ({ id, name }: any) => {
           >
             <Upload className="w-12 h-12 mx-auto text-muted-foreground mb-2" />
             <p className="text-lg font-medium">
-              Drag and drop video files to upload
+              Drag and drop video files to upload (should be less than 4mb)
             </p>
             <p className="text-sm text-muted-foreground mt-1">
               or click to select files
             </p>
             <input
               type="file"
-              name="video"
+              name="file"
               ref={fileInputRef}
               className="hidden"
-              accept="video/mp4"
+              accept="video/*"
               onChange={handlefilechange}
             />
           </div>
